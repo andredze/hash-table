@@ -530,17 +530,17 @@ ListErr_t ListFindElement(List_t* list, elem_t item, int* item_pos)
         return LIST_SUCCESS;
     }
 
-    size_t    list_capacity = list->capacity;
-    elem_t    node_value    = LIST_POISON;
-    ListErr_t error         = LIST_SUCCESS;
-    int       node_pos      = -1;
+    size_t    list_size  = list->size;
+    elem_t    node_value = LIST_POISON;
+    ListErr_t error      = LIST_SUCCESS;
+    int       node_pos   = -1;
 
     if ((error = ListGetHead(list, &node_pos)) != LIST_SUCCESS)
     {
         return error;
     }
 
-    for (size_t i = 0; i < list_capacity; i++)
+    for (size_t i = 0; i < list_size; i++)
     {
         if ((error = ListGetValue(list, node_pos, &node_value)) != LIST_SUCCESS)
         {

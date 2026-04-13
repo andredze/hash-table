@@ -1,9 +1,12 @@
 #include "hash_table.h"
 
+// HashLoad
+// HashDumpHist
+
 //------------------------------------------------------------------//
 
 HashTableErr_t HashTableCtor(HashTable_t *hash_table, size_t capacity,
-                             size_t (* hash_function)(HashTableElem_t elem))
+                             uint32_t (* hash_function)(HashTableElem_t elem))
 {
     assert(hash_table);
 

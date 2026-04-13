@@ -27,7 +27,7 @@ typedef struct HashTable
     size_t      capacity;
     List_t*     data; 
 
-    size_t (* hash_function)(const HashTableElem_t elem);
+    uint32_t (* hash_function)(const HashTableElem_t elem);
 }
 HashTable_t;
 
@@ -46,7 +46,7 @@ HashTableErr_t;
 
 //------------------------------------------------------------------//
 
-HashTableErr_t HashTableCtor        (HashTable_t* hash_table, size_t capacity, size_t (* hash_function)(HashTableElem_t elem));
+HashTableErr_t HashTableCtor        (HashTable_t* hash_table, size_t capacity, uint32_t (* hash_function)(HashTableElem_t elem));
 HashTableErr_t HashTablePutElement  (HashTable_t* hash_table, HashTableElem_t item);
 HashTableErr_t HashTableVerify      (HashTable_t* hash_table);
 HashTableErr_t HashTableDump        (HashTable_t* hash_table);

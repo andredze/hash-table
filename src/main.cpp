@@ -10,7 +10,7 @@ int main()
 
     do
     {
-        if (HashTableCtor(&hash_table, 13, CountHashChecksum))
+        if (HashTableCtor(&hash_table, 4001, CountHashChecksum))
             break;
 
         char* const strings[] = {"penis", "penis2", "penis3", "artem", "lolkek", "jopsa"};
@@ -29,7 +29,6 @@ int main()
 
         if (error)
             break;
-
 
         for (size_t i = 0; i < size; i++)
         {
