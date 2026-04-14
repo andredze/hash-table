@@ -255,8 +255,8 @@ HashTableErr_t HashTableDrawHistogram(HashTable_t* hash_table,
                                       const char*  hist_title)
 {
     assert(hash_table);
-    assert(hash_name);
-    assert(hash_title);
+    assert(hist_name);
+    assert(hist_title);
 
     FILE* hist_file = fopen("hist/data.dat", "w");
 
