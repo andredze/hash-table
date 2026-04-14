@@ -1,65 +1,66 @@
-#ifndef LIST_GRAPH_H
-#define LIST_GRAPH_H
+#ifndef INPUT_H
+#define INPUT_H
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
-#include "listDebug.h"
-#include "listTypes.h"
-#include "graphCommon.h"
+#include "my_printfs.h"
+#include <assert.h>
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdlib.h>
+#include <sys/stat.h>
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
-#ifdef LIST_DEBUG
+typedef struct BufferData
+{
+    char* buffer;
+    int lines_count;
+} BufferData_t;
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
-const int MAX_COMMAND_LEN = 300;
+typedef struct PtrDataParams
+{
+    char** ptrdata;
+    int lines_count;
+} PtrDataParams_t;
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
-ListErr_t ListCreateDumpGraph(
-    List_t* list,
-    const char* image_name,
-    const char* dot_dir);
-
-int MakeListNodes(
-    List_t* list,
-    FILE*   fp);
-
-int MakeListEdge(
-    int     pos,
-    List_t* list,
-    FILE*   fp);
-
-int MakeHeadTailFree(
-    List_t*     list,
-    FILE*       fp);
+typedef struct FileInfo
+{
+    FILE* stream;
+    const char* filepath;
+    size_t size;
+} FileInfo_t;
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
-int ProcessUncrossedLimitsEdge(
-    int     pos,
-    int     next,
-    int     prev_limits_cross,
-    int     next_limits_cross,
-    List_t* list,
-    FILE*   fp);
+typedef struct InputCtx
+{
+    FileInfo_t input_file_info;
+    BufferData_t buffer_data;
+    PtrDataParams_t ptrdata_params;
+    FileInfo_t output_file_info;
+} InputCtx_t;
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
-int MakeDefaultNode(
-    int         index,
-    const char* color,
-    const char* fillcolor,
-    const char* fontcolor,
-    const char* shape,
-    List_t*     list,
-    FILE*       fp);
+int  OpenFile           (FileInfo_t* file_info, const char* mode);
+int  ReadAndParseFile   (InputCtx_t* InputCtx);
+int  CountSize          (InputCtx_t* InputCtx);
+int  ReadText           (InputCtx_t* InputCtx);
+int  AllocateBuffer     (InputCtx_t* InputCtx);
+int  FillBuffer         (InputCtx_t* InputCtx);
+int  ParseText          (InputCtx_t* InputCtx);
+int  CountLines         (InputCtx_t* InputCtx);
+int  AllocatePtrdata    (InputCtx_t* InputCtx);
+int  FillPtrdata        (InputCtx_t* InputCtx);
+void InputCtxDtor       (InputCtx_t* input_ctx);
+void AddNullTerminators (char* ptr);
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
-#endif /* LIST_DEBUG */
-
-//——————————————————————————————————————————————————————————————————————————————————————————
-
-#endif /* LIST_GRAPH_H */
+#endif /* INPUT_H */

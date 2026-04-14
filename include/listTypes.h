@@ -81,7 +81,8 @@ typedef enum ListErr
     LIST_CAP_IS_WRONG,
     LIST_NEXT_WRONG,
     LIST_PREV_WRONG,
-    LIST_FLAG_IS_WRONG
+    LIST_FLAG_IS_WRONG,
+    LIST_SYSTEM_FUNC_ERROR
 } ListErr_t;
 
 //——————————————————————————————————————————————————————————————————————————————————————————
@@ -128,7 +129,8 @@ const char* const LIST_STR_ERRORS[] =
     [LIST_CAP_IS_WRONG]          = "LIST_CAP_IS_WRONG",
     [LIST_NEXT_WRONG]            = "LIST_NEXT_WRONG",
     [LIST_PREV_WRONG]            = "LIST_PREV_WRONG",
-    [LIST_FLAG_IS_WRONG]         = "LIST_FLAG_IS_WRONG"
+    [LIST_FLAG_IS_WRONG]         = "LIST_FLAG_IS_WRONG",
+    [LIST_SYSTEM_FUNC_ERROR]     = "LIST_SYSTEM_FUNC_ERROR"
 };
 
 //——————————————————————————————————————————————————————————————————————————————————————————

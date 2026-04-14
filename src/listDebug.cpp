@@ -271,6 +271,28 @@ ListErr_t ListVerifyFree(List_t* list, size_t* free_count_ptr)
 
 //------------------------------------------------------------------------------------------
 
+static ListErr_t ListConvertGraphFile(List_t* list, char* dot_file_path, char* img_file_path)
+{
+    char command[MAX_COMMAND_LEN] = {};
+
+    snprintf(command, sizeof(command), "dot %s -T %s -o %s",
+                                       dot_file_path,
+                                       IMAGE_FILE_TYPE,
+                                       img_file_path);
+
+    int result = system(command);
+
+    if (result != 0)
+    {
+        PRINTERR("LIST_SYSTEM_FUNC_ERROR");
+        return    LIST_SYSTEM_FUNC_ERROR;
+    }
+
+    return LIST_SUCCESS;
+}
+
+//------------------------------------------------------------------------------------------
+
 ListErr_t vListDump(List_t*         list,
                     ListDumpInfo_t* dump_info,
                     const char*     fmt,
@@ -350,6 +372,17 @@ ListErr_t vListDump(List_t*         list,
 
     fclose(fp);
 
+    char dot_file_path  [MAX_FILENAME_LEN] = {};
+    char image_file_path[MAX_FILENAME_LEN] = {};
+
+    snprintf(dot_file_path, sizeof(dot_file_path), "%s/%s.dot", dot_dir, image_name);
+    snprintf(image_file_path, sizeof(image_file_path), "%s/%s.%s", image_dir, image_name, IMAGE_FILE_TYPE);
+
+    if ((graph_error = ListConvertGraphFile(list, dot_file_path, image_file_path)))
+    {
+        return graph_error;
+    }
+
     return LIST_SUCCESS;
 }
 
@@ -387,17 +420,17 @@ int SetDirectories(char* log_filename, char* image_dir, char* dot_dir)
     strftime(time_dir, sizeof(time_dir), "%d%m%Y_%H%M%S", info);
 
     snprintf(dir, 100, "log/%s", time_dir);
-    mkdir(dir);
+    mkdir(dir, 0777);
 
     sprintf(image_dir, "log/%s/svg", time_dir);
 
     DPRINTF("image_dir = %s;\n", image_dir);
-    mkdir(image_dir);
+    mkdir(image_dir, 0777);
 
     sprintf(dot_dir, "log/%s/dot", time_dir);
 
     DPRINTF("dot_dir   = %s;\n", dot_dir);
-    mkdir(dot_dir);
+    mkdir(dot_dir, 0777);
 
     sprintf(log_filename, "log/%s/list_log.html", time_dir);
 

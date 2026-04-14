@@ -6,47 +6,67 @@
 
 int main()
 {
-    HashTable_t hash_table = {};
+    HashTable_t    hash_table = {};
+    HashTableErr_t error      = HT_SUCCESS;
 
-    do
+    FILE* variance_data_file = fopen(VARIANCE_DATA_FILE_PATH, "w"); 
+
+    double variance      = 0.0;
+    double std_deviation = 0.0;
+
+    fprintf(variance_data_file, "| %-20s | %15s | %15s |\n"
+                                "|-------|------|------|\n", 
+            "hash func", "variance", "std deviation");
+
+    for (size_t i = 0; i < HISTOGRAMS_COUNT; i++)
     {
-        if (HashTableCtor(&hash_table, 4001, CountHashChecksum))
-            break;
-
-        char* const strings[] = {"penis", "penis2", "penis3", "artem", "lolkek", "jopsa"};
-        const size_t size     = sizeof(strings) / sizeof(strings[0]);
-
-        bool error = false;
-
-        for (size_t i = 0; i < size; i++)
+        do
         {
-            if (HashTablePutElement(&hash_table, strings[i]))
+            const char* hash_func_name = HT_HASH_FUNC_HIST_CASES_TABLE[i].hist_name;
+            const char* hist_title     = HT_HASH_FUNC_HIST_CASES_TABLE[i].hist_title;
+
+            fprintf(stderr, "Ctoring\n");
+
+            if ((error = HashTableCtor(&hash_table, 5003, HT_HASH_FUNC_HIST_CASES_TABLE[i].hash_function)))
+                break;
+
+            fprintf(stderr, "Loading data\n");
+
+            for (size_t data_num = 0; data_num < DATA_FILES_COUNT; data_num++)
             {
-                error = true;
-                break;
+                if ((error = HashTableLoadData(&hash_table, HT_DATA_FILES_TABLE[data_num])))
+                    break;
             }
-        }
 
-        if (error)
-            break;
-
-        for (size_t i = 0; i < size; i++)
-        {
-            int hash_table_pos = -1;
-            int list_pos       = -1;
-
-            if (HashTableFindElement(&hash_table, strings[i], &hash_table_pos, &list_pos))
+            if (error)
                 break;
-            
-            printf("found %s: at %d %d\n", strings[i], hash_table_pos, list_pos);
+
+            fprintf(stderr, "Drawing histogram %s\n", hash_func_name);
+
+            if ((error = HashTableDrawHistogram(&hash_table, hash_func_name, hist_title)))
+                break;
+
+            fprintf(stderr, "Counting variance for %s\n", hash_func_name);
+
+            if ((error = HashTableCountVariance(&hash_table, &variance, &std_deviation)))
+                break;
+
+            fprintf(variance_data_file, "| %-20s | %15.2f | %15.2f |\n", 
+                    hash_func_name, variance, std_deviation);
+
         }
+        while (0);
+         
+        HashTableDtor(&hash_table);
 
         if (error)
-            break;
+        {
+            fclose(variance_data_file);
+            return error;
+        }
     }
-    while (0);
-    
-    HashTableDtor(&hash_table);
+
+    fclose(variance_data_file);
 
     return EXIT_SUCCESS;
 }

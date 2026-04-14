@@ -22,7 +22,7 @@ ASAN = -fsanitize=address,alignment,bool,bounds,enum,float-cast-overflow,$\
 
 CXX = g++
 
-CXXFLAGS = -march=native -g -fno-omit-frame-pointer
+CXXFLAGS = -march=native -O3
 
 INCLUDES += -I include
 
@@ -32,12 +32,17 @@ SOURCES = src/main.cpp	 		\
 		  src/listCommands.cpp 	\
 		  src/graphCommon.cpp	\
 		  src/hash_table.cpp	\
+		  src/input.cpp			\
 		  src/hash_functions.cpp
 
 # ------------------------------------------------------------------ #
 
+ifdef SAN
+	CXXFLAGS += $(ASAN) $(DED_FLAGS)
+endif
+
 ifdef DEBUG
-	CXXFLAGS += -D DEBUG $(DED_FLAGS) $(ASAN)
+	CXXFLAGS += -D DEBUG $(DED_FLAGS) $(ASAN) -D LIST_DEBUG
 else
 	CXXFLAGS += -DNDEBUG
 endif

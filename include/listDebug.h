@@ -13,6 +13,10 @@
 
 #ifdef LIST_DEBUG
 
+const int MAX_FILENAME_LEN = 256;
+
+const char * const IMAGE_FILE_TYPE = "svg";
+
 //==========================================================================================
 
 #define LIST_CALL_DUMP(list_ptr, name, fmt, ...)                                                  \

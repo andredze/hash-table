@@ -84,14 +84,14 @@ const uint32_t POLYNOM_8_LOOKUP_TABLE[256] = {
 
 //------------------------------------------------------------------//
 
-uint32_t CountHashAlwaysZero  (char* const string);
-uint32_t CountHashFirstLetter (char* const string);
-uint32_t CountHashLength      (char* const string);
-uint32_t CountHashChecksum    (char* const string);
-uint32_t CountHashRollingLeft (char* const string);
-uint32_t CountHashRollingRight(char* const string);
-uint32_t CountHashDjb2        (char* const string);
-uint32_t CountHashCrc32       (char* const string);
+uint64_t CountHashAlwaysOne   (char* const string);
+uint64_t CountHashFirstLetter (char* const string);
+uint64_t CountHashLength      (char* const string);
+uint64_t CountHashChecksum    (char* const string);
+uint64_t CountHashRotateLeft  (char* const string);
+uint64_t CountHashRotateRight (char* const string);
+uint64_t CountHashDjb2        (char* const string);
+uint64_t CountHashCrc32       (char* const string);
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
