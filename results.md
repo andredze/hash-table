@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="assets/rol_ror.png" width="75%">
+    <img src="assets/rol_ror_godbolt.png" width="75%">
 </p>
 <p align="center">
     <img src="hist/always_one.png" width="75%">

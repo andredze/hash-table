@@ -22,18 +22,19 @@ ASAN = -fsanitize=address,alignment,bool,bounds,enum,float-cast-overflow,$\
 
 CXX = g++
 
-CXXFLAGS = -march=native -O3
+CXXFLAGS = -march=native -O2 -g -fno-omit-frame-pointer
 
-INCLUDES += -I include
+INCLUDES += -I include -I include/hash_table -I include/list
 
-SOURCES = src/main.cpp	 		\
-		  src/listDebug.cpp 	\
-		  src/listGraph.cpp	  	\
-		  src/listCommands.cpp 	\
-		  src/graphCommon.cpp	\
-		  src/hash_table.cpp	\
-		  src/input.cpp			\
-		  src/hash_functions.cpp
+SOURCES = src/main.cpp	 		 				  \
+		  src/input.cpp			 				  \
+		  src/list/listDebug.cpp 	 			  \
+		  src/list/listGraph.cpp	  	 		  \
+		  src/list/listCommands.cpp 	 		  \
+		  src/list/graphCommon.cpp	 			  \
+		  src/hash_table/hash_table.cpp	 		  \
+		  src/hash_table/hash_table_test_case.cpp \
+		  src/hash_table/hash_functions.cpp
 
 # ------------------------------------------------------------------ #
 
@@ -47,6 +48,14 @@ else
 	CXXFLAGS += -DNDEBUG
 endif
 
+ifdef HIST
+	CXXFLAGS += -D HIST
+endif
+
+ifdef TEST
+	CXXFLAGS += -D TEST
+endif
+
 # ------------------------------------------------------------------ #
 
 OBJS = $(SOURCES:src/%.cpp=obj/%.o)
@@ -55,7 +64,7 @@ TARGET = run
 
 # ——————————————————————————————————————————————————————————————————————————————————————————
 
-$(shell mkdir -p obj)
+$(shell mkdir -p obj log obj/hash_table obj/list)
 
 all: clean build
 
