@@ -22,7 +22,7 @@ ASAN = -fsanitize=address,alignment,bool,bounds,enum,float-cast-overflow,$\
 
 CXX = g++
 
-CXXFLAGS = -march=native -O2 -g -fno-omit-frame-pointer -pie -fPIE
+CXXFLAGS = -O2 -g -fno-omit-frame-pointer -pie -fPIE -fno-optimize-sibling-calls
 
 INCLUDES += -I include -I include/hash_table -I include/list
 
@@ -54,6 +54,16 @@ endif
 
 ifdef TEST
 	CXXFLAGS += -D TEST
+endif
+
+ifdef STRCMP
+	CXXFLAGS += -D STRCMP
+endif
+
+ifdef NOAVX512
+	CXXFLAGS += -D NOAVX512 -march=x86-64-v3
+else
+	CXXFLAGS += -march=native
 endif
 
 # ------------------------------------------------------------------ #

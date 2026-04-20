@@ -107,7 +107,12 @@ const size_t HISTOGRAMS_COUNT = sizeof(HT_HASH_FUNC_HIST_CASES_TABLE) /
 // const size_t DATA_FILES_COUNT = sizeof(HT_DATA_FILES_TABLE) / 
 //                                 sizeof(HT_DATA_FILES_TABLE[0]);
 
+#ifdef DEBUG
+const char * const TEST_DATA_FILE_PATH = "data/test.txt"; 
+#else
 const char * const TEST_DATA_FILE_PATH = "data/war_sort.txt"; 
+#endif /* DEBUG */
+
 const char * const HIST_DATA_FILE_PATH = "data/sorted.txt"; 
 
 //------------------------------------------------------------------//

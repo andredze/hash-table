@@ -65,7 +65,14 @@ static HashTableErr_t HashTableGetElemList(HashTable_t*     hash_table,
 
     size_t elem_index = hash_value % hash_table->capacity;
 
-    DPRINTF("elem_index = %d (%s)\n", elem_index, item);
+    DPRINTF("elem_index = %d (%s | ", elem_index, item);
+    
+    for (int i = 0; i < 64; i++)
+    {
+        DPRINTF("%d ", item[i]);
+    }
+
+    DPRINTF(")\n");
 
     *list_ptr_ptr = &hash_table->data[elem_index];
 
@@ -170,12 +177,19 @@ HashTableErr_t HashTableFindElement(HashTable_t*    hash_table,
         return HT_SUCCESS;
     }
 
-    size_t hash_value = hash_table->hash_function(item);
     // size_t hash_value = CountHashCrc32Asm(item);
+    size_t hash_value = hash_table->hash_function(item);
 
     size_t elem_index = hash_value % hash_table->capacity;
 
-    DPRINTF("elem_index = %d (%s)\n", elem_index, item);
+    DPRINTF("elem_index = %d (%s | ", elem_index, item);
+    
+    for (int i = 0; i < 64; i++)
+    {
+        DPRINTF("%d ", (char) item[i]);
+    }
+
+    DPRINTF(")\n");
 
     List_t* list_ptr = &hash_table->data[elem_index];
 
@@ -366,16 +380,16 @@ HashTableErr_t HashTableLoadData(HashTable_t* hash_table, const char* data_file_
 
     for (int i = 0; i < data_ctx.ptrdata_params.lines_count; i++)
     {
-        if ((error = HashTablePutElement(hash_table, data_ctx.ptrdata_params.ptrdata[i])))
+        strncpy(hash_table->words[i], data_ctx.ptrdata_params.ptrdata[i], 
+                sizeof(hash_table->words[i]));
+     
+        if ((error = HashTablePutElement(hash_table, hash_table->words[i])))
         {
             InputCtxDtor(&data_ctx);
 
             return error;
         }
 
-        strncpy(hash_table->words[i], data_ctx.ptrdata_params.ptrdata[i], 
-                sizeof(hash_table->words[i]));
-        
         DPRINTF("Putting %s; size = %zu\n", data_ctx.ptrdata_params.ptrdata[i], hash_table->size);
     }
 

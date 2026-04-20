@@ -21,7 +21,7 @@ typedef char elem_t[NODE_STR_SIZE]__attribute__((aligned(64)));
 
 #define SPEC "%s"
 
-const elem_t LIST_POISON = {0};
+const elem_t LIST_POISON = {};
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 

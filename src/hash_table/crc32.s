@@ -36,6 +36,9 @@ section .text
 ;------------------------------------------------------------------
 
 CountHashCrc32Asm:
+    push rbp
+    mov rbp, rsp
+    
     ; rax = current hash value
     ; initial is all 1s equivalent to -1
     mov rax, -1
@@ -53,6 +56,8 @@ NextChunkHash:
     ; crc ^ 0xFF..FF (64 ones)
     mov rcx, -1
     xor rax, rcx
+
+    pop rbp
 
     ret
 

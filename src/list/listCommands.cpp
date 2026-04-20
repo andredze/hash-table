@@ -506,6 +506,24 @@ ListErr_t ListDtor(List_t* list)
 
 //------------------------------------------------------------------------------------------
 
+#if defined(NOAVX512) || defined(STRCMP)
+
+//------------------------------------------------------------------//
+
+int ListElemsEqual(elem_t elem1, elem_t elem2)
+{
+    assert(elem1);
+    assert(elem2);
+
+    return strcmp(elem1, elem2) == 0;
+}
+
+//------------------------------------------------------------------//
+
+#else
+
+//------------------------------------------------------------------//
+
 int ListElemsEqual(elem_t elem1, elem_t elem2)
 {
     assert(elem1);
@@ -530,6 +548,10 @@ int ListElemsEqual(elem_t elem1, elem_t elem2)
 
 //------------------------------------------------------------------//
 
+#endif /* NOAVX512 */
+
+//------------------------------------------------------------------//
+
 ListErr_t ListFindElement(List_t* list, elem_t item, int* item_pos)
 {
     DPRINTF("> Start ListFindElement() " SPEC "\n", item);
@@ -538,12 +560,14 @@ ListErr_t ListFindElement(List_t* list, elem_t item, int* item_pos)
 
     ListErr_t error      = LIST_SUCCESS;
     size_t    list_size  = list->size;
-    int       node_pos   = 0;
 
-    if ((error = ListGetHead(list, &node_pos)) != LIST_SUCCESS)
-    {
-        return error;
-    }
+    // int       node_pos   = 0;
+    // if ((error = ListGetHead(list, &node_pos)) != LIST_SUCCESS)
+    // {
+    //     return error;
+    // }
+
+    int node_pos = list->data[0].next;
 
     for (size_t i = 0; (i < list_size) && (node_pos != 0); i++)
     {

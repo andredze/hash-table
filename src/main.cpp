@@ -66,26 +66,11 @@ int main(int argc, char* argv[])
 
 #ifdef TEST
 
-    // alignas(64) char var1[64] = {};
-    // alignas(64) char var2[64] = {};
-
-    // fprintf(stderr, "%s == %s is %d\n", var1, var2, ListElemsEqual(var1, var2));
-
-    // strcpy(var1, "peniiiiiiiiiiiiiiiiiiiiiii");
-    // strcpy(var2, "peniiiiiiiiiiiiiiiiiiiiiii");
-    
-    // fprintf(stderr, "%s == %s is %d\n", var1, var2, ListElemsEqual(var1, var2));
-    
-    // strcpy(var1, "peniiiiiiiiiiiiiiiiiiiiiii");
-    // strcpy(var2, "peniiiiiiiiiiiiiiiiiiii222");
-
-    // fprintf(stderr, "%s == %s is %d\n", var1, var2, ListElemsEqual(var1, var2));
-
     do
     {
         // fprintf(stderr, "Ctoring\n");
 
-        if ((error = HashTableCtor(&hash_table, 5003, CountHashCrc32)))
+        if ((error = HashTableCtor(&hash_table, 5003, CountHashCrc32Asm)))
             break;
 
         // fprintf(stderr, "Loading data\n");
@@ -100,10 +85,11 @@ int main(int argc, char* argv[])
     }
     while (0);
 
+    HashTableDtor(&hash_table);
+
     if (error)
         return EXIT_FAILURE;
 
-    HashTableDtor(&hash_table);
 #endif /* TEST */
 
     return EXIT_SUCCESS;
