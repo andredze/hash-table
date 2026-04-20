@@ -22,7 +22,7 @@ ASAN = -fsanitize=address,alignment,bool,bounds,enum,float-cast-overflow,$\
 
 CXX = g++
 
-CXXFLAGS = -march=native -O2 -g -fno-omit-frame-pointer
+CXXFLAGS = -march=native -O2 -g -fno-omit-frame-pointer -pie -fPIE
 
 INCLUDES += -I include -I include/hash_table -I include/list
 
@@ -43,7 +43,7 @@ ifdef SAN
 endif
 
 ifdef DEBUG
-	CXXFLAGS += -D DEBUG $(DED_FLAGS) $(ASAN) -D LIST_DEBUG
+	CXXFLAGS += -D DEBUG $(DED_FLAGS) $(ASAN)
 else
 	CXXFLAGS += -DNDEBUG
 endif
@@ -60,6 +60,8 @@ endif
 
 OBJS = $(SOURCES:src/%.cpp=obj/%.o)
 
+ASM_OBJS = obj/hash_table/crc32.o
+
 TARGET = run
 
 # ——————————————————————————————————————————————————————————————————————————————————————————
@@ -71,7 +73,7 @@ all: clean build
 build: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CXX) $(OBJS) -o $@ $(CXXFLAGS) $(LD_FLAGS)
+	$(CXX) $(OBJS) $(ASM_OBJS) -o $@ $(CXXFLAGS) $(LD_FLAGS)
 
 obj/%.o: src/%.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<

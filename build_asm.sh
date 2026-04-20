@@ -1,0 +1,1 @@
+nasm -f elf64 -g -F dwarf src/hash_table/crc32.s -o obj/hash_table/crc32.o
