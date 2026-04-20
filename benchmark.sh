@@ -17,7 +17,7 @@ done
 echo 1 | sudo tee /sys/devices/system/cpu/intel_pstate/no_turbo
 
 # run benchmark
-hyperfine --warmup 7 --runs 25 "taskset -c 2 ./run" --export-markdown data/benchmark.md
+hyperfine --warmup 7 --runs 25 "taskset -c 2 ./run" --export-markdown assets/benchmark.md
 
 # disable cpu limit
 sudo cpupower frequency-set -g performance
