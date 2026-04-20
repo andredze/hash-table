@@ -20,12 +20,19 @@ HashTableErr_t HashTableRunTestCase(HashTable_t* hash_table)
             {
                 break;
             }
-            
+
+            DPRINTF("word %s pos %d\n", hash_table->words[i], pos);
+
             misses_count += (pos == -1);
         }
     }
 
     printf("Tests ended: misses count = %d\n", misses_count);
+
+    if (misses_count > 0)
+    {
+        return HT_FAILED_TESTS;
+    }
 
     return HT_SUCCESS;
 }

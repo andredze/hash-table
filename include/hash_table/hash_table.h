@@ -39,8 +39,7 @@ typedef struct HashTable
 
     uint64_t (* hash_function)(const HashTableElem_t elem);
 
-    char*  buffer;
-    char** words;
+    elem_t*     words;
 }
 HashTable_t;
 
@@ -57,7 +56,8 @@ typedef enum HashTableErr
     HT_FILE_ERROR,
     HT_SYSTEM_ERR,
     HT_FILENAME_TOOBIG,
-    HT_DATA_ALREADY_LOADED_ERR
+    HT_DATA_ALREADY_LOADED_ERR,
+    HT_FAILED_TESTS
 }
 HashTableErr_t;
 
@@ -81,7 +81,9 @@ const HashFunctionHistCase_t HT_HASH_FUNC_HIST_CASES_TABLE[] = {
     {CountHashRotateLeft , "rol"         , "\\\"rotate left + xor\\\""      },
     {CountHashRotateRight, "ror"         , "\\\"rotate right + xor\\\""     },
     {CountHashDjb2       , "djb2"        , "gnu (djb2)"                     },
-    {CountHashCrc32      , "crc32"       , "crc32"                          }
+    {CountHashCrc32      , "crc32"       , "crc32"                          },
+    {CountHashCrc32Intrinsic, "crc32_intrin"       , "crc32 intrin"         },
+    {CountHashCrc32Asm   , "crc32_asm"   , "crc32 asm"                      }
 };
 
 //------------------------------------------------------------------//
@@ -105,7 +107,8 @@ const size_t HISTOGRAMS_COUNT = sizeof(HT_HASH_FUNC_HIST_CASES_TABLE) /
 // const size_t DATA_FILES_COUNT = sizeof(HT_DATA_FILES_TABLE) / 
 //                                 sizeof(HT_DATA_FILES_TABLE[0]);
 
-const char * const DATA_FILE_PATH = "data/data.txt"; 
+const char * const TEST_DATA_FILE_PATH = "data/war_sort.txt"; 
+const char * const HIST_DATA_FILE_PATH = "data/sorted.txt"; 
 
 //------------------------------------------------------------------//
 

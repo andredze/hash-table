@@ -65,6 +65,8 @@ static HashTableErr_t HashTableGetElemList(HashTable_t*     hash_table,
 
     size_t elem_index = hash_value % hash_table->capacity;
 
+    DPRINTF("elem_index = %d (%s)\n", elem_index, item);
+
     *list_ptr_ptr = &hash_table->data[elem_index];
 
     return HT_SUCCESS;
@@ -107,6 +109,8 @@ HashTableErr_t HashTablePutElement(HashTable_t *hash_table, HashTableElem_t item
         {
             return HT_LIST_ERROR;
         }
+
+        hash_table->size++;
 
         return HT_SUCCESS;
     }
@@ -167,10 +171,24 @@ HashTableErr_t HashTableFindElement(HashTable_t*    hash_table,
     }
 
     size_t hash_value = hash_table->hash_function(item);
+    // size_t hash_value = CountHashCrc32Asm(item);
 
     size_t elem_index = hash_value % hash_table->capacity;
 
+    DPRINTF("elem_index = %d (%s)\n", elem_index, item);
+
     List_t* list_ptr = &hash_table->data[elem_index];
+
+    if (list_ptr->capacity == 0)
+    {
+        if (hash_table_pos)
+            *hash_table_pos = -1;
+        
+        if (list_pos)
+            *list_pos = -1;
+
+        return HT_SUCCESS;
+    }
 
     int pos = -1;
 
@@ -225,17 +243,7 @@ void HashTableDtor(HashTable_t *hash_table)
 
     hash_table->capacity = 0;
 
-    if (hash_table->buffer)
-    {
-        free(hash_table->buffer);
-    }
-
-    hash_table->buffer = NULL;
-
-    if (hash_table->words)
-    {
-        free(hash_table->words);
-    }
+    free(hash_table->words);
 
     hash_table->words = NULL;
 }
@@ -324,7 +332,7 @@ HashTableErr_t HashTableLoadData(HashTable_t* hash_table, const char* data_file_
 {
     assert(hash_table);
 
-    if (hash_table->buffer != NULL)
+    if (hash_table->words != NULL)
     {
         PRINTERR("Can only load data once in a hash table");
         
@@ -344,10 +352,15 @@ HashTableErr_t HashTableLoadData(HashTable_t* hash_table, const char* data_file_
         return HT_FILE_ERROR;
     }
 
-    hash_table->buffer = data_ctx.buffer_data.buffer;
-    hash_table->words  = data_ctx.ptrdata_params.ptrdata;
-
     HashTableErr_t error = HT_SUCCESS;
+
+    hash_table->words = (elem_t*) calloc(data_ctx.ptrdata_params.lines_count, sizeof(elem_t));
+
+    if (hash_table->words == NULL)
+    {
+        PRINTERR("Failed memory allocation for hash_table->words");
+        return HT_MEMALLOC_ERR;
+    }
 
     fprintf(stderr, "Filling table\n");
 
@@ -355,9 +368,18 @@ HashTableErr_t HashTableLoadData(HashTable_t* hash_table, const char* data_file_
     {
         if ((error = HashTablePutElement(hash_table, data_ctx.ptrdata_params.ptrdata[i])))
         {
+            InputCtxDtor(&data_ctx);
+
             return error;
         }
+
+        strncpy(hash_table->words[i], data_ctx.ptrdata_params.ptrdata[i], 
+                sizeof(hash_table->words[i]));
+        
+        DPRINTF("Putting %s; size = %zu\n", data_ctx.ptrdata_params.ptrdata[i], hash_table->size);
     }
+
+    InputCtxDtor(&data_ctx);    
 
     return HT_SUCCESS;
 }

@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
 
             fprintf(stderr, "Loading data\n");
 
-            if ((error = HashTableLoadData(&hash_table, DATA_FILE_PATH)))
+            if ((error = HashTableLoadData(&hash_table, HIST_DATA_FILE_PATH)))
                 break;
 
             fprintf(stderr, "Drawing histogram %s\n", hash_func_name);
@@ -66,39 +66,42 @@ int main(int argc, char* argv[])
 
 #ifdef TEST
 
-    alignas(64) char var1[64] = {};
-    alignas(64) char var2[64] = {};
+    // alignas(64) char var1[64] = {};
+    // alignas(64) char var2[64] = {};
 
-    fprintf(stderr, "%s == %s is %d\n", var1, var2, ListElemsEqual(var1, var2));
+    // fprintf(stderr, "%s == %s is %d\n", var1, var2, ListElemsEqual(var1, var2));
 
-    strcpy(var1, "peniiiiiiiiiiiiiiiiiiiiiii");
-    strcpy(var2, "peniiiiiiiiiiiiiiiiiiiiiii");
+    // strcpy(var1, "peniiiiiiiiiiiiiiiiiiiiiii");
+    // strcpy(var2, "peniiiiiiiiiiiiiiiiiiiiiii");
     
-    fprintf(stderr, "%s == %s is %d\n", var1, var2, ListElemsEqual(var1, var2));
+    // fprintf(stderr, "%s == %s is %d\n", var1, var2, ListElemsEqual(var1, var2));
     
-    strcpy(var1, "peniiiiiiiiiiiiiiiiiiiiiii");
-    strcpy(var2, "peniiiiiiiiiiiiiiiiiiii222");
+    // strcpy(var1, "peniiiiiiiiiiiiiiiiiiiiiii");
+    // strcpy(var2, "peniiiiiiiiiiiiiiiiiiii222");
 
-    fprintf(stderr, "%s == %s is %d\n", var1, var2, ListElemsEqual(var1, var2));
+    // fprintf(stderr, "%s == %s is %d\n", var1, var2, ListElemsEqual(var1, var2));
 
     do
     {
-        fprintf(stderr, "Ctoring\n");
+        // fprintf(stderr, "Ctoring\n");
 
         if ((error = HashTableCtor(&hash_table, 5003, CountHashCrc32)))
             break;
 
-        fprintf(stderr, "Loading data\n");
+        // fprintf(stderr, "Loading data\n");
 
-        if ((error = HashTableLoadData(&hash_table, DATA_FILE_PATH)))
+        if ((error = HashTableLoadData(&hash_table, TEST_DATA_FILE_PATH)))
             break;
 
-        fprintf(stderr, "Running test case\n");
+        // fprintf(stderr, "Running test case\n");
 
         if ((error = HashTableRunTestCase(&hash_table)))
             break;
     }
     while (0);
+
+    if (error)
+        return EXIT_FAILURE;
 
     HashTableDtor(&hash_table);
 #endif /* TEST */

@@ -102,7 +102,7 @@ uint64_t CountHashCrc32(char* const string)
 {
     assert(string);
 
-    uint64_t hash = 0xffffffff;
+    uint64_t hash = 0xffffffffffffffff;
     DPRINTF("string = %s\n", string);
 
     for (size_t i = 0; (string[i] != '\0') && (i < MAX_ITERATIONS); i++)
@@ -114,7 +114,30 @@ uint64_t CountHashCrc32(char* const string)
         hash = POLYNOM_8_LOOKUP_TABLE[(uint8_t) string[i] ^ (hash & 0xff)] ^ (hash >> 8);
     }
 
-    return hash ^ 0xffffffff;
+    return hash ^ 0xffffffffffffffff;
+}
+
+//------------------------------------------------------------------//
+
+uint64_t CountHashCrc32Intrinsic(char* string)
+{
+    assert(string);
+
+    uint64_t crc = 0xFFFFFFFFFFFFFFFF;
+
+    int length = NODE_STR_SIZE;
+
+    while (length > 0)
+    {
+        crc = _mm_crc32_u64(crc, *(uint64_t*) string);
+        
+        string += 8;
+        length -= 8;
+    }
+
+    // no remaining bytes as NODE_STR_SIZE % 8 == 0
+
+    return crc ^ 0xFFFFFFFFFFFFFFFF;
 }
 
 //------------------------------------------------------------------//

@@ -518,6 +518,8 @@ int ListElemsEqual(elem_t elem1, elem_t elem2)
 
     unsigned int mask = _cvtmask32_u32(mm_mask);
 
+    DPRINTF("comparing %s with %s, mask = %u\n", elem1, elem2, mask);
+
     if (~mask == 0)
     {
         return 1;
