@@ -13,7 +13,7 @@
 //------------------------------------------------------------------//
 
 const size_t MAX_ITERATIONS = 1024 * 1024;
-const int    ROL_BYTES      = 3;
+const int    ROTATE_BYTES   = 3;
 
 //------------------------------------------------------------------//
 
@@ -87,16 +87,16 @@ const uint32_t POLYNOM_8_LOOKUP_TABLE[256] = {
 //------------------------------------------------------------------//
 
 extern "C" 
-uint64_t CountHashCrc32Asm      (char*       string);
-uint64_t CountHashAlwaysOne     (char* const string);
-uint64_t CountHashFirstLetter   (char* const string);
-uint64_t CountHashLength        (char* const string);
-uint64_t CountHashChecksum      (char* const string);
-uint64_t CountHashRotateLeft    (char* const string);
-uint64_t CountHashRotateRight   (char* const string);
-uint64_t CountHashDjb2          (char* const string);
-uint64_t CountHashCrc32         (char* const string);
-uint64_t CountHashCrc32Intrinsic(char* const string);
+uint32_t CountHashCrc32Asm      (char*       string);
+uint32_t CountHashAlwaysOne     (char* const string);
+uint32_t CountHashFirstLetter   (char* const string);
+uint32_t CountHashLength        (char* const string);
+uint32_t CountHashChecksum      (char* const string);
+uint32_t CountHashRotateLeft    (char* const string);
+uint32_t CountHashRotateRight   (char* const string);
+uint32_t CountHashDjb2          (char* const string);
+uint32_t CountHashCrc32         (char* const string);
+uint32_t CountHashCrc32Intrinsic(char* const string);
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 

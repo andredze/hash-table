@@ -65,20 +65,19 @@ int main(int argc, char* argv[])
 #endif /* HIST */
 
 #ifdef TEST
-
     do
     {
-        // fprintf(stderr, "Ctoring\n");
+        DPRINTF("Ctoring\n");
 
         if ((error = HashTableCtor(&hash_table, 5003, CountHashCrc32Asm)))
             break;
 
-        // fprintf(stderr, "Loading data\n");
+        DPRINTF("Loading data\n");
 
         if ((error = HashTableLoadData(&hash_table, TEST_DATA_FILE_PATH)))
             break;
 
-        // fprintf(stderr, "Running test case\n");
+        DPRINTF("Running test case\n");
 
         if ((error = HashTableRunTestCase(&hash_table)))
             break;

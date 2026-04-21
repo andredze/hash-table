@@ -22,7 +22,11 @@ ASAN = -fsanitize=address,alignment,bool,bounds,enum,float-cast-overflow,$\
 
 CXX = g++
 
-CXXFLAGS = -O2 -g -fno-omit-frame-pointer -pie -fPIE -fno-optimize-sibling-calls
+CXXFLAGS = -g -fno-omit-frame-pointer -pie -fPIE -fno-optimize-sibling-calls
+
+OPT=-O2
+
+CXXFLAGS += $(OPT)
 
 INCLUDES += -I include -I include/hash_table -I include/list
 

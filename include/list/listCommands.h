@@ -28,7 +28,7 @@ ListErr_t ListInsertBefore (List_t* list, int  pos, elem_t  value, int* insert_p
 ListErr_t ListFindElement  (List_t* list, elem_t item, int* item_pos);
 ListErr_t ListGetHead      (List_t* list,           int*    head);
 ListErr_t ListGetTail      (List_t* list,           int*    tail);
-ListErr_t ListGetValue     (List_t* list, int  pos, elem_t  value);
+ListErr_t ListGetValue     (List_t* list, int  pos, elem_t* value);
 ListErr_t ListGetSize      (List_t* list, size_t* size_dest);
 
 ListErr_t ListReallocDownLinear (List_t* list);

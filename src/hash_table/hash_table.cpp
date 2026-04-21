@@ -4,7 +4,7 @@
 //------------------------------------------------------------------//
 
 HashTableErr_t HashTableCtor(HashTable_t *hash_table, size_t capacity,
-                             uint64_t (* hash_function)(HashTableElem_t elem))
+                             uint32_t (* hash_function)(HashTableElem_t elem))
 {
     assert(hash_table);
 
@@ -38,21 +38,6 @@ HashTableErr_t HashTableCtor(HashTable_t *hash_table, size_t capacity,
     hash_table->hash_function = hash_function;
 
     return HT_SUCCESS;
-}
-
-//------------------------------------------------------------------//
-
-static int HashTableElemsEqual(HashTableElem_t elem1, HashTableElem_t elem2)
-{
-    assert(elem1);
-    assert(elem2);
-
-    if (strcmp(elem1, elem2) == 0)
-    {
-        return 1;
-    }
-
-    return 0;
 }
 
 //------------------------------------------------------------------//
@@ -193,17 +178,6 @@ HashTableErr_t HashTableFindElement(HashTable_t*    hash_table,
 
     List_t* list_ptr = &hash_table->data[elem_index];
 
-    if (list_ptr->capacity == 0)
-    {
-        if (hash_table_pos)
-            *hash_table_pos = -1;
-        
-        if (list_pos)
-            *list_pos = -1;
-
-        return HT_SUCCESS;
-    }
-
     int pos = -1;
 
     if (ListFindElement(list_ptr, item, &pos) != LIST_SUCCESS)
@@ -257,7 +231,7 @@ void HashTableDtor(HashTable_t *hash_table)
 
     hash_table->capacity = 0;
 
-    free(hash_table->words);
+    _mm_free(hash_table->words);
 
     hash_table->words = NULL;
 }
@@ -368,12 +342,20 @@ HashTableErr_t HashTableLoadData(HashTable_t* hash_table, const char* data_file_
 
     HashTableErr_t error = HT_SUCCESS;
 
-    hash_table->words = (elem_t*) calloc(data_ctx.ptrdata_params.lines_count, sizeof(elem_t));
+    size_t words_data_size = data_ctx.ptrdata_params.lines_count * sizeof(Word_t);
+
+    hash_table->words = (Word_t*) _mm_malloc(words_data_size, sizeof(Word_t));
 
     if (hash_table->words == NULL)
     {
         PRINTERR("Failed memory allocation for hash_table->words");
         return HT_MEMALLOC_ERR;
+    }
+
+    // initialize words with zeros
+    for (size_t i = 0; i < data_ctx.ptrdata_params.lines_count; i++)
+    {
+        strncpy(hash_table->words[i], ZERO_DATA, sizeof(hash_table->words[i]));
     }
 
     fprintf(stderr, "Filling table\n");

@@ -28,6 +28,10 @@ const char * const DOT_DIR_PATH            = "log/dot";
 
 typedef char* HashTableElem_t;
 
+typedef char Word_t[STR_MAX_SIZE];
+
+const Word_t ZERO_DATA = {};
+
 //------------------------------------------------------------------//
 
 typedef struct HashTable
@@ -37,9 +41,9 @@ typedef struct HashTable
 
     List_t*     data;
 
-    uint64_t (* hash_function)(const HashTableElem_t elem);
+    uint32_t (* hash_function)(const HashTableElem_t elem);
 
-    elem_t*     words;
+    Word_t*     words;
 }
 HashTable_t;
 
@@ -65,7 +69,7 @@ HashTableErr_t;
 
 typedef struct HashFunctionHistCase
 {
-    uint64_t (* hash_function) (char* const string);
+    uint32_t (* hash_function) (char* const string);
     const char* hist_name;
     const char* hist_title;
 }
@@ -93,24 +97,10 @@ const size_t HISTOGRAMS_COUNT = sizeof(HT_HASH_FUNC_HIST_CASES_TABLE) /
 
 //------------------------------------------------------------------//
 
-// const char* const HT_DATA_FILES_TABLE[] = {
-//     "data/zote.txt"      ,
-//     "data/bh.txt"        ,
-//     "data/fight_club.txt",
-//     "data/war_and_peace.txt" ,
-//     "data/physics.txt"   ,
-//     "data/tolkin.txt"
-// };
-
-// //------------------------------------------------------------------//
-
-// const size_t DATA_FILES_COUNT = sizeof(HT_DATA_FILES_TABLE) / 
-//                                 sizeof(HT_DATA_FILES_TABLE[0]);
-
 #ifdef DEBUG
 const char * const TEST_DATA_FILE_PATH = "data/test.txt"; 
 #else
-const char * const TEST_DATA_FILE_PATH = "data/war_sort.txt"; 
+const char * const TEST_DATA_FILE_PATH = "data/sorted.txt"; 
 #endif /* DEBUG */
 
 const char * const HIST_DATA_FILE_PATH = "data/sorted.txt"; 
@@ -119,7 +109,7 @@ const char * const HIST_DATA_FILE_PATH = "data/sorted.txt";
 
 HashTableErr_t HashTableCtor(HashTable_t* hash_table, 
                              size_t       capacity, 
-                             uint64_t  (* hash_function)(HashTableElem_t elem));
+                             uint32_t  (* hash_function)(HashTableElem_t elem));
 
 HashTableErr_t HashTablePutElement      (HashTable_t* hash_table, HashTableElem_t item);
 HashTableErr_t HashTableVerify          (HashTable_t* hash_table);
@@ -142,4 +132,4 @@ HashTableErr_t HashTableCountVariance(HashTable_t* hash_table,
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
-#endif /* HASH_TAB_H */
+#endif /* HASH_TABLE_H */

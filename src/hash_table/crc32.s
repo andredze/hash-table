@@ -6,7 +6,7 @@ section .text
 
 ;==================================================================
 ;------------------------------------------------------------------
-; uint64_t CountHashCrc32(const char string[64])
+; uint32_t CountHashCrc32(const char string[64])
 ;------------------------------------------------------------------
 ; Short:   Crc32 hash function implementation
 ; In:      rdi --> string[64]
@@ -15,9 +15,9 @@ section .text
 ;------------------------------------------------------------------
 ; C-equivalent using intrinsics
 ;------------------------------------------------------------------
-; uint64_t CountHashCrc32Intrinsic(char* string)
+; uint32_t CountHashCrc32Intrinsic(char* string)
 ; {
-;     uint64_t crc = 0xFFFFFFFFFFFFFFFF;
+;     uint32_t crc = 0xFFFFFFFF;
 ;
 ;     int length = NODE_STR_SIZE;
 ;
@@ -31,31 +31,59 @@ section .text
 ;
 ;     // no remaining bytes as NODE_STR_SIZE % 8 == 0
 ;
-;     return crc ^ 0xFFFFFFFFFFFFFFFF;
+;     return crc ^ 0xFFFFFFFF;
 ; }
 ;------------------------------------------------------------------
 
-CountHashCrc32Asm:
+CountHashCrc32AsmOld:
     push rbp
     mov rbp, rsp
     
-    ; rax = current hash value
+    ; eax = current hash value
     ; initial is all 1s equivalent to -1
-    mov rax, -1
+    mov eax, -1
     ; loop counter
     mov rcx, STRING_SIZE_IN_CHUNKS
 
-NextChunkHash:
+.NextChunkHash:
     ; accumulate a crc value with current chunk of data (8 bytes of the string)
     crc32 rax, qword [rdi]
     ; go to next chunk of data (string += 8)
     add rdi, 8
 
-    loop NextChunkHash
+    loop .NextChunkHash
 
-    ; crc ^ 0xFF..FF (64 ones)
-    mov rcx, -1
-    xor rax, rcx
+    ; crc ^ 0xFF..FF (32 ones)
+    mov ecx, -1
+    xor eax, ecx
+
+    pop rbp
+
+    ret
+
+;==================================================================
+
+CountHashCrc32Asm:
+    push rbp
+    mov rbp, rsp
+    
+    ; eax = current hash value
+    ; initial is all 1s equivalent to -1
+    mov eax, -1
+    
+    ; accumulate a crc value with current chunk of data (8 bytes of the string)
+    crc32 rax, qword [rdi+ 0]
+    crc32 rax, qword [rdi+ 8]
+    crc32 rax, qword [rdi+16]
+    crc32 rax, qword [rdi+24]
+    crc32 rax, qword [rdi+32]
+    crc32 rax, qword [rdi+40]
+    crc32 rax, qword [rdi+48]
+    crc32 rax, qword [rdi+56]
+
+    ; crc ^ 0xFF..FF (32 ones)
+    mov ecx, -1
+    xor eax, ecx
 
     pop rbp
 

@@ -52,15 +52,14 @@ ListErr_t ListCtor(List_t* list, size_t capacity)
     list->data[0].prev  = 0; /* tail */
     list->data[0].next  = 0; /* head */
     
-    strncpy(list->data[0].value, LIST_POISON, sizeof(list->data[0].value));
+    list->data[0].value = LIST_POISON;
 
     /* Filling the free list */
     for (int i = 1; i < (int) capacity; i++)
     {
         list->data[i].prev  = -1;
         list->data[i].next  = i + 1;
-        
-        strncpy(list->data[0].value, LIST_POISON, sizeof(list->data[0].value));
+        list->data[0].value = LIST_POISON;
     }
 
     /* Last free element addresses to null */
@@ -204,7 +203,7 @@ static ListErr_t ListInsert(List_t* list,
     list->data[cur_index].prev  = pos;
     list->data[cur_index].next  = pos_next;
 
-    strncpy(list->data[cur_index].value, value, sizeof(list->data[cur_index].value));
+    list->data[cur_index].value = value;
 
     if (insert_pos != NULL)
     {
@@ -245,8 +244,7 @@ static ListErr_t ListRealloc(List_t* list)
     {
         list->data[i].prev  = -1;
         list->data[i].next  = i + 1;
-
-        strncpy(list->data[i].value, LIST_POISON, sizeof(list->data[i].value));
+        list->data[i].value = LIST_POISON;
     }
 
     /* Last free element addresses to nothing */
@@ -335,7 +333,7 @@ static ListErr_t ListReallocLinear(List_t* list, size_t capacity)
         DPRINTF("ind = %d;\n", ind);
         new_data[ind].prev  = ind - 1;
         new_data[ind].next  = ind + 1;
-        strncpy(new_data[ind].value, list->data[pos].value, sizeof(new_data[ind].value));
+        new_data[ind].value = list->data[pos].value;
         ind++;
     }
 
@@ -347,8 +345,7 @@ static ListErr_t ListReallocLinear(List_t* list, size_t capacity)
     {
         new_data[ind].prev  = -1;
         new_data[ind].next  = ind + 1;
-
-        strncpy(new_data[ind].value, LIST_POISON, sizeof(new_data[ind].value));
+        new_data[ind].value = LIST_POISON;
     }
 
     new_data[capacity - 1].next = -1;
@@ -390,7 +387,7 @@ ListErr_t ListEraseElem(List_t* list, int pos)
     list->data[pos].prev  = -1;
     list->data[pos].next  = list->free;
 
-    strncpy(list->data[pos].value, LIST_POISON, sizeof(list->data[pos].value));
+    list->data[pos].value = LIST_POISON;
 
     list->free = pos;
 
@@ -466,7 +463,7 @@ ListErr_t ListGetSize(List_t* list, size_t* size_dest)
 
 //------------------------------------------------------------------------------------------
 
-ListErr_t ListGetValue(List_t* list, int pos, elem_t value)
+ListErr_t ListGetValue(List_t* list, int pos, elem_t* value)
 {
     DPRINTF("> Start ListGetValue()\n");
 
@@ -478,7 +475,7 @@ ListErr_t ListGetValue(List_t* list, int pos, elem_t value)
         return error;
     }
 
-    strncpy(value, list->data[pos].value, sizeof(list->data[pos].value));
+    *value = list->data[pos].value;
 
     DPRINTF("> End   ListGetValue\n");
 
@@ -529,21 +526,10 @@ int ListElemsEqual(elem_t elem1, elem_t elem2)
     assert(elem1);
     assert(elem2);
 
-    __m512i mm_elem1 = _mm512_loadu_si512((void*) elem1);
-    __m512i mm_elem2 = _mm512_loadu_si512((void*) elem2);
+    __m512i mm_elem1 = _mm512_load_si512((void*) elem1);
+    __m512i mm_elem2 = _mm512_load_si512((void*) elem2);
 
-    __mmask32 mm_mask = _mm512_cmpeq_epi16_mask(mm_elem1, mm_elem2);
-
-    unsigned int mask = _cvtmask32_u32(mm_mask);
-
-    DPRINTF("comparing %s with %s, mask = %u\n", elem1, elem2, mask);
-
-    if (~mask == 0)
-    {
-        return 1;
-    }
-
-    return 0;
+    return _mm512_cmp_epi16_mask(mm_elem1, mm_elem2, _MM_CMPINT_NE) == 0;
 }
 
 //------------------------------------------------------------------//
@@ -558,18 +544,23 @@ ListErr_t ListFindElement(List_t* list, elem_t item, int* item_pos)
 
     DEBUG_LIST_CHECK(list, "START_FIND_ELEMENT_", 0);
 
-    ListErr_t error      = LIST_SUCCESS;
-    size_t    list_size  = list->size;
+    // mov r9, [rdi]       ; *list
+    // mov rcx, [rdi+0x10] ; list->size
+    // mov r10, [rdi+0x10] ; list->data
+    // xor r8, r8          ; node_pos
+    // vmovdqa64 zmm0, ZMMWORD PTR [rsi]    ; *item
+    // jmp .LoopEnd
+    // .Next:
+    // mov r11, [r10 + r8 * 0x10] ; list->data[node_pos].value
+    // vmovdqa64 zmm1, ZMMWORD PTR [r11] ; *value
+    // 
+    // .LoopEnd:
+    // mov r8, [r10 + r8 * 0x10 + 8] ; list->data[node_pos].next == list->data + node_pos * sizeof(Node_t) + sizeof(char*)
 
-    // int       node_pos   = 0;
-    // if ((error = ListGetHead(list, &node_pos)) != LIST_SUCCESS)
-    // {
-    //     return error;
-    // }
+    int    node_pos  = list->data[0].next;
+    size_t list_size = list->size;
 
-    int node_pos = list->data[0].next;
-
-    for (size_t i = 0; (i < list_size) && (node_pos != 0); i++)
+    for (size_t i = 0; i < list_size; i++)
     {
         if (ListElemsEqual(list->data[node_pos].value, item) == 1)
         {
@@ -578,7 +569,7 @@ ListErr_t ListFindElement(List_t* list, elem_t item, int* item_pos)
             return LIST_SUCCESS;
         }
 
-        // else continue
+        // else: continue
         node_pos = list->data[node_pos].next;
     }
 

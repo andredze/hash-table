@@ -15,9 +15,9 @@
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
-const int NODE_STR_SIZE = 64;
+const int STR_MAX_SIZE = 64;
 
-typedef char elem_t[NODE_STR_SIZE]__attribute__((aligned(64)));
+typedef char* elem_t;
 
 #define SPEC "%s"
 
@@ -27,7 +27,7 @@ const elem_t LIST_POISON = {};
 
 typedef struct Node
 {
-    alignas(64) elem_t value;
+    elem_t value;
     int    next;
     int    prev;
 } Node_t;
