@@ -162,10 +162,24 @@ HashTableErr_t HashTableFindElement(HashTable_t*    hash_table,
         return HT_SUCCESS;
     }
 
-    // size_t hash_value = CountHashCrc32Asm(item);
-    size_t hash_value = hash_table->hash_function(item);
+    //  size_t hash_value = CountHashCrc32Asm(item);
 
-    size_t elem_index = hash_value % hash_table->capacity;
+    //  size_t elem_index = hash_value % hash_table->capacity;
+
+    // // size_t hash_value = hash_table->hash_function(item);
+    size_t elem_index = 0;
+
+    asm volatile (
+       "mov r8,  [%[hash_table]]\n" // capacity
+       "mov rdi, %[item]        \n"
+       "call CountHashCrc32Asm  \n"
+       "xor edx, edx            \n"
+       "div r8                  \n"
+       "mov %[elem_index], rdx  \n"
+       : [elem_index] "=r" (elem_index)
+       : [hash_table] "r" (hash_table), [item] "r" (item)
+        : "rax", "rcx", "r8", "rdx", "rdi", "memory"
+    );
 
     DPRINTF("elem_index = %d (%s | ", elem_index, item);
     

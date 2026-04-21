@@ -22,7 +22,12 @@ ASAN = -fsanitize=address,alignment,bool,bounds,enum,float-cast-overflow,$\
 
 CXX = g++
 
-CXXFLAGS = -g -fno-omit-frame-pointer -pie -fPIE -fno-optimize-sibling-calls
+CXXFLAGS = -g \
+		   -fno-omit-frame-pointer \
+		   -fno-optimize-sibling-calls \
+		   -pie \
+		   -fPIE \
+		   -masm=intel
 
 OPT=-O2
 

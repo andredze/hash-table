@@ -562,6 +562,9 @@ ListErr_t ListFindElement(List_t* list, elem_t item, int* item_pos)
 
     for (size_t i = 0; i < list_size; i++)
     {
+        // void *addr = &list->data[list->data[node_pos].next];
+        // asm volatile ("prefetcht0 [%0]" : : "r"(addr) : "memory");
+        
         if (ListElemsEqual(list->data[node_pos].value, item) == 1)
         {
             *item_pos = node_pos;
