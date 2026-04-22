@@ -486,7 +486,7 @@ ListErr_t ListGetValue(List_t* list, int pos, elem_t* value)
 
 ListErr_t ListDtor(List_t* list)
 {
-    DPRINTF("> Start ListDtor()\n");
+    // DPRINTF("> Start ListDtor()\n");
 
     if (list == NULL)
     {
@@ -496,18 +496,18 @@ ListErr_t ListDtor(List_t* list)
 
     free(list->data);
 
-    DPRINTF("> End   ListDtor\n\n");
+    // DPRINTF("> End   ListDtor\n\n");
 
     return LIST_SUCCESS;
 }
 
 //------------------------------------------------------------------------------------------
 
-#if defined(NOAVX512) || defined(STRCMP)
+#if defined(NOAVX)
 
 //------------------------------------------------------------------//
 
-static int ListElemsEqual(elem_t elem1, elem_t elem2)
+int ListElemsEqual(elem_t elem1, elem_t elem2)
 {
     assert(elem1);
     assert(elem2);
@@ -521,68 +521,19 @@ static int ListElemsEqual(elem_t elem1, elem_t elem2)
 
 //------------------------------------------------------------------//
 
-static int ListElemsEqual(__m512i mm_elem1, elem_t elem2)
+int ListElemsEqual(__m256i mm_elem1, elem_t elem2)
 {
     assert(elem2);
 
-    __m512i mm_elem2 = _mm512_load_si512((void*) elem2);
+    __m256i mm_elem2 = _mm256_load_si256((__m256i*) elem2);
 
-    return _mm512_cmp_epi16_mask(mm_elem1, mm_elem2, _MM_CMPINT_NE) == 0;
+    __m256i mask = _mm256_cmpeq_epi16(mm_elem1, mm_elem2);
+
+    return ~_mm256_cvtsi256_si32(mask) == 0;
 }
 
 //------------------------------------------------------------------//
 
-#endif /* NOAVX512 */
+#endif /* NOAVX */
 
 //------------------------------------------------------------------//
-
-ListErr_t ListFindElement(List_t* list, elem_t item, int* item_pos)
-{
-    DPRINTF("> Start ListFindElement() " SPEC "\n", item);
-
-    DEBUG_LIST_CHECK(list, "START_FIND_ELEMENT_", 0);
-
-    int    node_pos  = list->data[0].next;
-    size_t list_size = list->size;
-
-    #if not (defined(STRCMP) || defined(NOAVX512))
-
-        __m512i mm_item = _mm512_load_si512((void*) item);
-
-    #endif /* STRCMP || NOAVX512 */
-
-    for (size_t i = 0; i < list_size; i++)
-    {
-        //------------------------------------------------------------------//
-        #if defined(STRCMP) || defined(NOAVX512)
-
-            bool elems_equal = ListElemsEqual(item, list->data[node_pos].value);
-
-        #else
-
-            bool elems_equal = ListElemsEqual(mm_item, list->data[node_pos].value);
-
-        #endif /* STRCMP || NOAVX512 */
-        //------------------------------------------------------------------//
-
-        if (elems_equal)
-        {
-            *item_pos = node_pos;
-
-            return LIST_SUCCESS;
-        }
-
-        // else: continue
-        node_pos = list->data[node_pos].next;
-        //------------------------------------------------------------------//
-    }
-
-    // item was not found
-    *item_pos = -1;
-
-    DPRINTF("> End   ListFindElement()" SPEC "\n", item);
-
-    return LIST_SUCCESS;
-}
-
-//------------------------------------------------------------------------------------------

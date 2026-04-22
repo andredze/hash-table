@@ -22,13 +22,16 @@ ASAN = -fsanitize=address,alignment,bool,bounds,enum,float-cast-overflow,$\
 
 CXX = g++
 
-CXXFLAGS = \
-		   -pie \
-		   -fPIE \
-		   -masm=intel
+CXXFLAGS = -pie 	   \
+		   -fPIE 	   \
+		   -flto 	   \
+		   -masm=intel \
+		   -mavx2	   \
+		   -mavx	   \
+		   -mfma
 
-# -g \
-# 		   -fno-omit-frame-pointer \
+# -g 							   		\
+# 		   -fno-omit-frame-pointer 		\
 # 		   -fno-optimize-sibling-calls
 
 OPT=-O2
@@ -61,20 +64,12 @@ endif
 
 ifdef HIST
 	CXXFLAGS += -D HIST
-endif
-
-ifdef TEST
+else
 	CXXFLAGS += -D TEST
 endif
 
-ifdef STRCMP
-	CXXFLAGS += -D STRCMP
-endif
-
-ifdef NOAVX512
-	CXXFLAGS += -D NOAVX512 -march=x86-64-v3
-else
-	CXXFLAGS += -march=native
+ifdef NOAVX
+	CXXFLAGS += -D NOAVX
 endif
 
 ifdef NOCRC32

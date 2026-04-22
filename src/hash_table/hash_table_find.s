@@ -122,6 +122,7 @@ HashTableFindElementAsm:
     mov rbp, r9
     ; preserve rcx
     mov rdx, rcx
+;//FIXME jump
     call ListFindElementAsm
     mov rcx, rdx
     mov r9, rbp

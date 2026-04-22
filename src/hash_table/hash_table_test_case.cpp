@@ -31,6 +31,11 @@ HashTableErr_t HashTableRunTestCase(HashTable_t* hash_table)
             DPRINTF("word %s pos %d\n", hash_table->words[i], pos);
 
             misses_count += (pos == -1);
+
+            if (pos == -1)
+            {
+                PRINTERR("missed %s pos %d\n", hash_table->words[i], pos);
+            }
         }
     }
 

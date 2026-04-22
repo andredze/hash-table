@@ -97,7 +97,8 @@ const size_t HISTOGRAMS_COUNT = sizeof(HT_HASH_FUNC_HIST_CASES_TABLE) /
 //------------------------------------------------------------------//
 
 #ifdef DEBUG
-const char * const TEST_DATA_FILE_PATH = "data/test.txt"; 
+const char * const TEST_DATA_FILE_PATH = "data/sorted.txt"; 
+// const char * const TEST_DATA_FILE_PATH = "data/test.txt"; 
 #else
 const char * const TEST_DATA_FILE_PATH = "data/sorted.txt"; 
 #endif /* DEBUG */
@@ -123,7 +124,7 @@ HashTableErr_t HashTableDrawHistogram(HashTable_t* hash_table,
 HashTableErr_t HashTableFindElement(HashTable_t*    hash_table, 
                                     HashTableElem_t item, 
                                     int*            hash_table_pos,
-                                    int*            list_pos);
+                                    int*            list_pos)__attribute__((noinline));
 
 HashTableErr_t HashTableCountVariance(HashTable_t* hash_table, 
                                       double*      variance_dest,

@@ -3,6 +3,20 @@
 
 //------------------------------------------------------------------//
 
+static void HashTableDebugPrintElem(int elem_index, char* item)
+{
+    DPRINTF("elem_index = %d (%s | ", elem_index, item);
+    
+    for (int i = 0; i < STR_MAX_SIZE; i++)
+    {
+        DPRINTF("%d ", (char) item[i]);
+    }
+
+    DPRINTF(")\n");
+}
+
+//------------------------------------------------------------------//
+
 HashTableErr_t HashTableCtor(HashTable_t *hash_table, size_t capacity,
                              uint32_t (* hash_function)(HashTableElem_t elem))
 {
@@ -55,26 +69,17 @@ static HashTableErr_t HashTableGetElemList(HashTable_t*     hash_table,
                                            List_t**         list_ptr_ptr)
 {
 
-#ifdef NOCRC32ASM
-
+#if defined(NOCRC32ASM)
     size_t hash_value = CountHashCrc32(item);
-
+#elif defined(HIST)
+    size_t hash_value = hash_table->hash_function(item);
 #else
-
     size_t hash_value = CountHashCrc32Asm(item);
-
 #endif /* NOCRC32ASM */
 
     size_t elem_index = hash_value % hash_table->capacity;
 
-    DPRINTF("elem_index = %d (%s | ", elem_index, item);
-    
-    for (int i = 0; i < 64; i++)
-    {
-        DPRINTF("%d ", item[i]);
-    }
-
-    DPRINTF(")\n");
+    HashTableDebugPrintElem(elem_index, item);
 
     *list_ptr_ptr = &hash_table->data[elem_index];
 
@@ -193,26 +198,17 @@ HashTableErr_t HashTableFindElement(HashTable_t*    hash_table,
         return HT_SUCCESS;
     }
 
-#ifdef NOCRC32ASM
-
+#if defined(NOCRC32ASM)
     size_t hash_value = CountHashCrc32(item);
-
+#elif defined(HIST)
+    size_t hash_value = hash_table->hash_function(item);
 #else
-
     size_t hash_value = CountHashCrc32Asm(item);
-
 #endif /* NOCRC32ASM */
 
     size_t elem_index = hash_value % hash_table->capacity;
 
-    DPRINTF("elem_index = %d (%s | ", elem_index, item);
-    
-    for (int i = 0; i < 64; i++)
-    {
-        DPRINTF("%d ", (char) item[i]);
-    }
-
-    DPRINTF(")\n");
+    HashTableDebugPrintElem(elem_index, item);
 
     List_t* list_ptr = &hash_table->data[elem_index];
 
@@ -266,15 +262,15 @@ void HashTableDtor(HashTable_t *hash_table)
 
     hash_table->capacity = 0;
 
-#if not (defined(NOAVX512) || defined(STRCMP))
-
-    _mm_free(hash_table->words);
-
-#else
+#if defined(NOAVX)
 
     free(hash_table->words);
 
-#endif /* NOAVX512 */
+#else
+
+    _mm_free(hash_table->words);
+
+#endif /* NOAVX */
 
     hash_table->words = NULL;
 }
@@ -387,7 +383,11 @@ HashTableErr_t HashTableLoadData(HashTable_t* hash_table, const char* data_file_
 
     size_t words_data_size = data_ctx.ptrdata_params.lines_count * sizeof(Word_t);
 
-#if not (defined(NOAVX512) || defined(STRCMP))
+#if defined(NOAVX)
+
+    hash_table->words = (Word_t*) calloc(data_ctx.ptrdata_params.lines_count, sizeof(Word_t));
+
+#else
 
     hash_table->words = (Word_t*) _mm_malloc(words_data_size, sizeof(Word_t));
 
@@ -397,11 +397,7 @@ HashTableErr_t HashTableLoadData(HashTable_t* hash_table, const char* data_file_
         strncpy(hash_table->words[i], ZERO_DATA, sizeof(hash_table->words[i]));
     }
 
-#else
-
-    hash_table->words = (Word_t*) calloc(data_ctx.ptrdata_params.lines_count, sizeof(Word_t));
-
-#endif /* NOAVX512 || STRCMP */
+#endif /* NOAVX */
 
     if (hash_table->words == NULL)
     {
@@ -427,68 +423,6 @@ HashTableErr_t HashTableLoadData(HashTable_t* hash_table, const char* data_file_
     }
 
     InputCtxDtor(&data_ctx);    
-
-    return HT_SUCCESS;
-}
-
-//------------------------------------------------------------------//
-
-HashTableErr_t HashTableGraphDump(HashTable_t* hash_table,
-                                  const char*  image_name)
-{
-    if (image_name == NULL)
-    {
-        PRINTERR("Nullptr image_name\n");
-        return HT_NULL_ERR;
-    }
-    if (strlen(image_name) > HT_MAX_FILENAME_LEN / 2)
-    {
-        PRINTERR("Too big filename for graph image");
-        return HT_FILENAME_TOOBIG;
-    }
-
-    char filepath[MAX_FILENAME_LEN] = {};
-
-    sprintf(filepath, "%s/%s.dot", DOT_DIR_PATH, image_name);
-
-    FILE* fp = fopen(filepath, "w");
-
-    if (fp == NULL)
-    {
-        PRINTERR("Opening graph file %s for writing failed", filepath);
-        return HT_FILE_ERROR;
-    }
-
-    fprintf(fp, "digraph GG\n{\n\t"
-    R"(graph [splines=ortho];
-    ranksep=0.75;
-    nodesep=0.5;
-    node [
-        fontname  = "Arial",
-        shape     = "Mrecord",
-        style     = "filled",
-        color     = "#3E3A22",
-        fillcolor = "#E3DFC9",
-        fontcolor = "#3E3A22"
-    ];
-    edge [constraint=false];)""\n");
-
-    for (size_t i = 0; i < hash_table->capacity; i++)
-    {
-        MakeListNodes(&hash_table->data[i], fp);
-
-        size_t list_capacity = hash_table->data[i].capacity;
-
-        /* make all edges */
-        for (int pos = 1; pos < (int) list_capacity; pos++)
-        {
-            MakeListEdge(pos, &hash_table->data[i], fp);
-        }
-    }
-
-    fprintf(fp, "}\n");
-
-    fclose(fp);
 
     return HT_SUCCESS;
 }
