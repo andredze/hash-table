@@ -507,7 +507,7 @@ ListErr_t ListDtor(List_t* list)
 
 //------------------------------------------------------------------//
 
-int ListElemsEqual(elem_t elem1, elem_t elem2)
+static int ListElemsEqual(elem_t elem1, elem_t elem2)
 {
     assert(elem1);
     assert(elem2);
@@ -521,12 +521,10 @@ int ListElemsEqual(elem_t elem1, elem_t elem2)
 
 //------------------------------------------------------------------//
 
-int ListElemsEqual(elem_t elem1, elem_t elem2)
+static int ListElemsEqual(__m512i mm_elem1, elem_t elem2)
 {
-    assert(elem1);
     assert(elem2);
 
-    __m512i mm_elem1 = _mm512_load_si512((void*) elem1);
     __m512i mm_elem2 = _mm512_load_si512((void*) elem2);
 
     return _mm512_cmp_epi16_mask(mm_elem1, mm_elem2, _MM_CMPINT_NE) == 0;
@@ -544,28 +542,30 @@ ListErr_t ListFindElement(List_t* list, elem_t item, int* item_pos)
 
     DEBUG_LIST_CHECK(list, "START_FIND_ELEMENT_", 0);
 
-    // mov r9, [rdi]       ; *list
-    // mov rcx, [rdi+0x10] ; list->size
-    // mov r10, [rdi+0x10] ; list->data
-    // xor r8, r8          ; node_pos
-    // vmovdqa64 zmm0, ZMMWORD PTR [rsi]    ; *item
-    // jmp .LoopEnd
-    // .Next:
-    // mov r11, [r10 + r8 * 0x10] ; list->data[node_pos].value
-    // vmovdqa64 zmm1, ZMMWORD PTR [r11] ; *value
-    // 
-    // .LoopEnd:
-    // mov r8, [r10 + r8 * 0x10 + 8] ; list->data[node_pos].next == list->data + node_pos * sizeof(Node_t) + sizeof(char*)
-
     int    node_pos  = list->data[0].next;
     size_t list_size = list->size;
 
+    #if not (defined(STRCMP) || defined(NOAVX512))
+
+        __m512i mm_item = _mm512_load_si512((void*) item);
+
+    #endif /* STRCMP || NOAVX512 */
+
     for (size_t i = 0; i < list_size; i++)
     {
-        // void *addr = &list->data[list->data[node_pos].next];
-        // asm volatile ("prefetcht0 [%0]" : : "r"(addr) : "memory");
-        
-        if (ListElemsEqual(list->data[node_pos].value, item) == 1)
+        //------------------------------------------------------------------//
+        #if defined(STRCMP) || defined(NOAVX512)
+
+            bool elems_equal = ListElemsEqual(item, list->data[node_pos].value);
+
+        #else
+
+            bool elems_equal = ListElemsEqual(mm_item, list->data[node_pos].value);
+
+        #endif /* STRCMP || NOAVX512 */
+        //------------------------------------------------------------------//
+
+        if (elems_equal)
         {
             *item_pos = node_pos;
 
@@ -574,8 +574,10 @@ ListErr_t ListFindElement(List_t* list, elem_t item, int* item_pos)
 
         // else: continue
         node_pos = list->data[node_pos].next;
+        //------------------------------------------------------------------//
     }
 
+    // item was not found
     *item_pos = -1;
 
     DPRINTF("> End   ListFindElement()" SPEC "\n", item);

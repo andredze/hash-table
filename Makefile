@@ -22,12 +22,14 @@ ASAN = -fsanitize=address,alignment,bool,bounds,enum,float-cast-overflow,$\
 
 CXX = g++
 
-CXXFLAGS = -g \
-		   -fno-omit-frame-pointer \
-		   -fno-optimize-sibling-calls \
+CXXFLAGS = \
 		   -pie \
 		   -fPIE \
 		   -masm=intel
+
+# -g \
+# 		   -fno-omit-frame-pointer \
+# 		   -fno-optimize-sibling-calls
 
 OPT=-O2
 
@@ -75,11 +77,20 @@ else
 	CXXFLAGS += -march=native
 endif
 
+ifdef NOCRC32
+	CXXFLAGS += -D NOCRC32ASM
+endif
+
+ifdef FULLASM
+	CXXFLAGS += -D FULLASM
+endif
+
 # ------------------------------------------------------------------ #
 
 OBJS = $(SOURCES:src/%.cpp=obj/%.o)
 
-ASM_OBJS = obj/hash_table/crc32.o
+ASM_OBJS = obj/hash_table/crc32.o \
+		   obj/hash_table/hash_table_find.o
 
 TARGET = run
 

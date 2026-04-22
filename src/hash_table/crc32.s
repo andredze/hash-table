@@ -11,7 +11,7 @@ section .text
 ; Short:   Crc32 hash function implementation
 ; In:      rdi --> string[64]
 ; Out:     rax = hash value
-; Destroy: -
+; Destroy: rcx
 ;------------------------------------------------------------------
 ; C-equivalent using intrinsics
 ;------------------------------------------------------------------
@@ -63,10 +63,7 @@ CountHashCrc32AsmOld:
 
 ;==================================================================
 
-CountHashCrc32Asm:
-    push rbp
-    mov rbp, rsp
-    
+CountHashCrc32Asm:   
     ; eax = current hash value
     ; initial is all 1s equivalent to -1
     mov eax, -1
@@ -82,10 +79,8 @@ CountHashCrc32Asm:
     crc32 rax, qword [rdi+56]
 
     ; crc ^ 0xFF..FF (32 ones)
-    mov ecx, -1
-    xor eax, ecx
-
-    pop rbp
+    mov edi, -1
+    xor eax, edi
 
     ret
 

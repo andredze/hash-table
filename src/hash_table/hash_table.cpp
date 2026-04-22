@@ -37,6 +37,14 @@ HashTableErr_t HashTableCtor(HashTable_t *hash_table, size_t capacity,
 
     hash_table->hash_function = hash_function;
 
+    for (size_t i = 0; i < hash_table->capacity; i++)
+    {
+        if (ListCtor(&hash_table->data[i], 2) != LIST_SUCCESS)
+        {
+            return HT_LIST_ERROR;
+        }
+    }
+
     return HT_SUCCESS;
 }
 
@@ -46,7 +54,16 @@ static HashTableErr_t HashTableGetElemList(HashTable_t*     hash_table,
                                            HashTableElem_t  item, 
                                            List_t**         list_ptr_ptr)
 {
-    size_t hash_value = hash_table->hash_function(item);
+
+#ifdef NOCRC32ASM
+
+    size_t hash_value = CountHashCrc32(item);
+
+#else
+
+    size_t hash_value = CountHashCrc32Asm(item);
+
+#endif /* NOCRC32ASM */
 
     size_t elem_index = hash_value % hash_table->capacity;
 
@@ -138,6 +155,20 @@ HashTableErr_t HashTableVerify(HashTable_t* hash_table)
 {
     assert(hash_table);
 
+#ifdef LIST_DEBUG
+    for (size_t i = 0; i < hash_table->capacity; i++)
+    {
+        ListErr_t error = LIST_SUCCESS;
+
+        if ((error = ListVerify(hash_table->data[i])))
+        {
+            PRINTERR("Error in bucket %zu: %s", i, LIST_STR_ERRORS[error]);
+            
+            return HT_LIST_ERROR;
+        }
+    }
+#endif /* LIST_DEBUG */
+
     return HT_SUCCESS;
 }
 
@@ -162,24 +193,17 @@ HashTableErr_t HashTableFindElement(HashTable_t*    hash_table,
         return HT_SUCCESS;
     }
 
-    //  size_t hash_value = CountHashCrc32Asm(item);
+#ifdef NOCRC32ASM
 
-    //  size_t elem_index = hash_value % hash_table->capacity;
+    size_t hash_value = CountHashCrc32(item);
 
-    // // size_t hash_value = hash_table->hash_function(item);
-    size_t elem_index = 0;
+#else
 
-    asm volatile (
-       "mov r8,  [%[hash_table]]\n" // capacity
-       "mov rdi, %[item]        \n"
-       "call CountHashCrc32Asm  \n"
-       "xor edx, edx            \n"
-       "div r8                  \n"
-       "mov %[elem_index], rdx  \n"
-       : [elem_index] "=r" (elem_index)
-       : [hash_table] "r" (hash_table), [item] "r" (item)
-        : "rax", "rcx", "r8", "rdx", "rdi", "memory"
-    );
+    size_t hash_value = CountHashCrc32Asm(item);
+
+#endif /* NOCRC32ASM */
+
+    size_t elem_index = hash_value % hash_table->capacity;
 
     DPRINTF("elem_index = %d (%s | ", elem_index, item);
     
@@ -194,10 +218,7 @@ HashTableErr_t HashTableFindElement(HashTable_t*    hash_table,
 
     int pos = -1;
 
-    if (ListFindElement(list_ptr, item, &pos) != LIST_SUCCESS)
-    {
-        return HT_LIST_ERROR;
-    }
+    ListFindElement(list_ptr, item, &pos);
 
     // (pos == -1) if element was not found
 
@@ -245,7 +266,15 @@ void HashTableDtor(HashTable_t *hash_table)
 
     hash_table->capacity = 0;
 
+#if not (defined(NOAVX512) || defined(STRCMP))
+
     _mm_free(hash_table->words);
+
+#else
+
+    free(hash_table->words);
+
+#endif /* NOAVX512 */
 
     hash_table->words = NULL;
 }
@@ -358,18 +387,26 @@ HashTableErr_t HashTableLoadData(HashTable_t* hash_table, const char* data_file_
 
     size_t words_data_size = data_ctx.ptrdata_params.lines_count * sizeof(Word_t);
 
-    hash_table->words = (Word_t*) _mm_malloc(words_data_size, sizeof(Word_t));
+#if not (defined(NOAVX512) || defined(STRCMP))
 
-    if (hash_table->words == NULL)
-    {
-        PRINTERR("Failed memory allocation for hash_table->words");
-        return HT_MEMALLOC_ERR;
-    }
+    hash_table->words = (Word_t*) _mm_malloc(words_data_size, sizeof(Word_t));
 
     // initialize words with zeros
     for (size_t i = 0; i < data_ctx.ptrdata_params.lines_count; i++)
     {
         strncpy(hash_table->words[i], ZERO_DATA, sizeof(hash_table->words[i]));
+    }
+
+#else
+
+    hash_table->words = (Word_t*) calloc(data_ctx.ptrdata_params.lines_count, sizeof(Word_t));
+
+#endif /* NOAVX512 || STRCMP */
+
+    if (hash_table->words == NULL)
+    {
+        PRINTERR("Failed memory allocation for hash_table->words");
+        return HT_MEMALLOC_ERR;
     }
 
     fprintf(stderr, "Filling table\n");

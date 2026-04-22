@@ -17,8 +17,6 @@ typedef enum ListInsertType
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
-int ListElemsEqual(elem_t elem1, elem_t elem2);
-
 ListErr_t ListCtor         (List_t* list, size_t capacity);
 ListErr_t ListDtor         (List_t* list);
 ListErr_t ListEraseElem    (List_t* list, int  pos);

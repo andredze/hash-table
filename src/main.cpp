@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
     {
         DPRINTF("Ctoring\n");
 
-        if ((error = HashTableCtor(&hash_table, 5003, CountHashCrc32Asm)))
+        if ((error = HashTableCtor(&hash_table, 5003, CountHashCrc32)))
             break;
 
         DPRINTF("Loading data\n");

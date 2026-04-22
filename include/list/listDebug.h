@@ -23,7 +23,7 @@ const char * const IMAGE_FILE_TYPE = "svg";
         ListDumpInfo_t dump_info = {LIST_SUCCESS, name, __PRETTY_FUNCTION__, __FILE__, __LINE__}; \
         if (ListDump((list_ptr), &dump_info, (fmt), ##__VA_ARGS__))                               \
         {                                                                                         \
-            return LIST_DUMP_ERROR;                                                               \
+            return LIST_DUMP_ELIST_DEBUGRROR;                                                               \
         }                                                                                         \
         END
 

@@ -16,10 +16,17 @@ HashTableErr_t HashTableRunTestCase(HashTable_t* hash_table)
     {
         for (size_t i = 0; i < hash_table->size; i++)
         {
+#ifdef FULLASM
+            if ((error = HashTableFindElementAsm(hash_table, hash_table->words[i], NULL, &pos)))
+            {
+                break;
+            }
+#else
             if ((error = HashTableFindElement(hash_table, hash_table->words[i], NULL, &pos)))
             {
                 break;
             }
+#endif /* FULLASM */
 
             DPRINTF("word %s pos %d\n", hash_table->words[i], pos);
 

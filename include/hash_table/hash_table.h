@@ -86,7 +86,6 @@ const HashFunctionHistCase_t HT_HASH_FUNC_HIST_CASES_TABLE[] = {
     {CountHashRotateRight, "ror"         , "\\\"rotate right + xor\\\""     },
     {CountHashDjb2       , "djb2"        , "gnu (djb2)"                     },
     {CountHashCrc32      , "crc32"       , "crc32"                          },
-    {CountHashCrc32Intrinsic, "crc32_intrin"       , "crc32 intrin"         },
     {CountHashCrc32Asm   , "crc32_asm"   , "crc32 asm"                      }
 };
 
@@ -129,6 +128,11 @@ HashTableErr_t HashTableFindElement(HashTable_t*    hash_table,
 HashTableErr_t HashTableCountVariance(HashTable_t* hash_table, 
                                       double*      variance_dest,
                                       double*      std_deviation_dest);
+
+extern "C" HashTableErr_t HashTableFindElementAsm(HashTable_t*    hash_table,
+                                                  HashTableElem_t item,
+                                                  int*            hash_table_pos,
+                                                  int*            list_pos);
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
