@@ -96,7 +96,7 @@ uint32_t CountHashRotateLeft    (char* const string);
 uint32_t CountHashRotateRight   (char* const string);
 uint32_t CountHashDjb2          (char* const string);
 uint32_t CountHashCrc32         (char* const string);
-uint32_t CountHashCrc32Intrinsic(char* const string);
+uint32_t CountHashCrc32AsmInline(char*       string);
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 

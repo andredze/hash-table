@@ -116,20 +116,23 @@ uint32_t CountHashCrc32(char* const string)
 
 //------------------------------------------------------------------//
 
-uint32_t CountHashCrc32Intrinsic(char* string)
+uint32_t CountHashCrc32AsmInline(char* string)
 {
     assert(string);
 
     uint32_t crc = 0xFFFFFFFF;
 
-    for (int length = STR_MAX_SIZE; length > 0; length -= 8)
+    for (int i = 0; i < STR_MAX_SIZE / 8; i++)
     {
-        crc = _mm_crc32_u64(crc, *(uint64_t*) string);
-        
+        asm ("crc32 %[crc], DWORD PTR [%[string]]\n" 
+             : [crc]    "+r" (crc) 
+             : [string] "r"  (string)
+             : "memory");
+    
         string += 8;
     }
 
-    // no remaining bytes as NODE_STR_SIZE % 8 == 0
+    // no remaining bytes as STR_MAX_SIZE % 8 == 0
 
     return crc ^ 0xFFFFFFFF;
 }
