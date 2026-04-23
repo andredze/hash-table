@@ -63,24 +63,19 @@ CountHashCrc32AsmOld:
 
 ;==================================================================
 
-CountHashCrc32Asm:   
+CountHashCrc32Asm:
     ; eax = current hash value
     ; initial is all 1s equivalent to -1
-    mov eax, -1
+    mov eax, 0xffffffff
     
     ; accumulate a crc value with current chunk of data (8 bytes of the string)
     crc32 rax, qword [rdi+ 0]
     crc32 rax, qword [rdi+ 8]
     crc32 rax, qword [rdi+16]
     crc32 rax, qword [rdi+24]
-    crc32 rax, qword [rdi+32]
-    crc32 rax, qword [rdi+40]
-    crc32 rax, qword [rdi+48]
-    crc32 rax, qword [rdi+56]
 
     ; crc ^ 0xFF..FF (32 ones)
-    mov edi, -1
-    xor eax, edi
+    not eax
 
     ret
 

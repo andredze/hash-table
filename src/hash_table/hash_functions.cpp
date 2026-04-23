@@ -122,15 +122,13 @@ uint32_t CountHashCrc32AsmInline(char* string)
 
     uint32_t crc = 0xFFFFFFFF;
 
-    for (int i = 0; i < STR_MAX_SIZE / 8; i++)
-    {
-        asm ("crc32 %[crc], DWORD PTR [%[string]]\n" 
-             : [crc]    "+r" (crc) 
-             : [string] "r"  (string)
-             : "memory");
-    
-        string += 8;
-    }
+    asm ("crc32 %[crc], DWORD PTR [%[string] + 0 ]\n" 
+         "crc32 %[crc], DWORD PTR [%[string] + 8 ]\n" 
+         "crc32 %[crc], DWORD PTR [%[string] + 16]\n" 
+         "crc32 %[crc], DWORD PTR [%[string] + 24]\n" 
+         : [crc]    "+r" (crc) 
+         : [string] "r"  (string)
+         : "memory");
 
     // no remaining bytes as STR_MAX_SIZE % 8 == 0
 

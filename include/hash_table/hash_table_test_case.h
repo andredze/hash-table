@@ -10,7 +10,7 @@
 #ifdef DEBUG
 const int TESTS_COUNT = 1;
 #else
-const int TESTS_COUNT = 1000;
+const int TESTS_COUNT = 2000;
 #endif /* DEBUG */
 
 //------------------------------------------------------------------//

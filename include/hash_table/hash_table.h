@@ -78,15 +78,15 @@ HashFunctionHistCase_t;
 //------------------------------------------------------------------//
 
 const HashFunctionHistCase_t HT_HASH_FUNC_HIST_CASES_TABLE[] = {
-    {CountHashAlwaysOne  , "always_one"  , "\\\"value is always one\\\""    },
-    {CountHashFirstLetter, "first_letter", "\\\"first letter ASCII code\\\""},
-    {CountHashLength     , "strlen"      , "strlen"                         },
-    {CountHashChecksum   , "checksum"    , "checksum"                       },
-    {CountHashRotateLeft , "rol"         , "\\\"rotate left + xor\\\""      },
-    {CountHashRotateRight, "ror"         , "\\\"rotate right + xor\\\""     },
-    {CountHashDjb2       , "djb2"        , "gnu (djb2)"                     },
-    {CountHashCrc32      , "crc32"       , "crc32"                          },
-    {CountHashCrc32Asm   , "crc32_asm"   , "crc32 asm"                      }
+    {CountHashAlwaysOne     , "always_one"  , "\\\"value is always one\\\""    },
+    {CountHashFirstLetter   , "first_letter", "\\\"first letter ASCII code\\\""},
+    {CountHashLength        , "strlen"      , "strlen"                         },
+    {CountHashChecksum      , "checksum"    , "checksum"                       },
+    {CountHashRotateLeft    , "rol"         , "\\\"rotate left + xor\\\""      },
+    {CountHashRotateRight   , "ror"         , "\\\"rotate right + xor\\\""     },
+    {CountHashDjb2          , "djb2"        , "gnu (djb2)"                     },
+    {CountHashCrc32         , "crc32"       , "crc32"                          },
+    {CountHashCrc32AsmInline, "crc32_asm"   , "crc32 asm"                      }
 };
 
 //------------------------------------------------------------------//

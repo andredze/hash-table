@@ -39,7 +39,6 @@ extern CountHashCrc32Asm
 ;         {
 ;             *list_pos = -1;
 ;         }
-
 ;         return HT_SUCCESS;
 ;     }
 ;
@@ -102,7 +101,9 @@ HashTableFindElementAsm:
     ; rdi --> item
     mov rdi, rsi
 
-    call CountHashCrc32Asm
+    jmp CountHashCrc32AsmLabel
+.EvaluatedHash:
+
     ; rax = hash value
     ; set rdx to 0 for div
     xor edx, edx
@@ -118,14 +119,8 @@ HashTableFindElementAsm:
     ; rdi --> hash_table->data[elem_index]
     mov rdi, rdx
 
-    ; preserve r9
-    mov rbp, r9
-    ; preserve rcx
-    mov rdx, rcx
-;//FIXME jump
-    call ListFindElementAsm
-    mov rcx, rdx
-    mov r9, rbp
+    jmp ListFindElementAsm
+.Continue:    
 
 .PutTableAndListPos:
     ; check for NULL ptr
@@ -139,7 +134,6 @@ HashTableFindElementAsm:
     ; check for NULL ptr
     test rcx, rcx
     jz .SkipListPos
-
     ; if not NULL:
     ; *list_pos = r11
     mov DWORD [rcx], r11d
@@ -161,38 +155,58 @@ HashTableFindElementAsm:
     jmp .PutTableAndListPos
 
 ;==================================================================
+
+CountHashCrc32AsmLabel:
+    ; eax = current hash value
+    ; initial is all 1s equivalent to -1
+    mov eax, 0xffffffff
+    
+    ; accumulate a crc value with current chunk of data (8 bytes of the string)
+    crc32 rax, qword [rdi+ 0]
+    crc32 rax, qword [rdi+ 8]
+    crc32 rax, qword [rdi+16]
+    crc32 rax, qword [rdi+24]
+
+    ; crc ^ 0xFF..FF (32 ones)
+    not eax
+
+    jmp HashTableFindElementAsm.EvaluatedHash
+
 ;------------------------------------------------------------------
 ; ListErr_t ListFindElementAsm(List_t* list, elem_t item, int* item_pos)
+;------------------------------------------------------------------
+; Destroy: r8, rbp, rsi, rax, rdx, rdi
 ;------------------------------------------------------------------
 
 ListFindElementAsm:
     ; r8 = *list = data
     mov r8, QWORD [rdi]
-    ; r9 = list->size
-    mov r9, QWORD [rdi+0x10]
+    ; rbp = list->size
+    mov rbp, QWORD [rdi+0x10]
     ; rax --> item
-    mov rax,rsi
+    mov rax, rsi
     
-    ; zmm0 = *item = mm_item
-    vmovdqa64 zmm0, [rax]
+    ; ymm0 = *item = mm_item
+    vmovdqa ymm0, [rax]
     ; esi = list->data[0].next
-    mov esi, DWORD [r8+0x8]
+    mov esi, DWORD [r8 + 0x8]
 
-    ; if r9 == 0
-    test r9,r9
+    ; if rbp == 0
+    test rbp, rbp
     je .NotFound
-    ; ecx = i = 0
-    xor ecx, ecx
+    ; edx = i = 0
+    xor edx, edx
     jmp .Compare
     
     nop
 
 .LoopNext:
     ; i++
-    inc rcx
-    mov esi, DWORD [rax+0x8]
+    inc rdx
+    ; next node_pos
+    mov esi, DWORD [rax + 0x8]
     ; if i == list_size
-    cmp r9, rcx
+    cmp rbp, rdx
     je .NotFound
 
 .Compare:
@@ -201,32 +215,34 @@ ListFindElementAsm:
     movsxd rax, esi
     ; node_pos * 16
     shl rax, 0x4
-    add rax,r8
+    add rax, r8
     
     ; rdi = *next_node = char* --> data
     mov rdi, QWORD [rax]
     
-    ; cmpne mm_item with *next_data and store mask in k0
-    vpcmpneqw k0, zmm0, [rdi]
-    ; if zero -> set zf (if equal ==> zf = 1)
-    kortestd k0, k0
+    ; cmpne mm_item with *next_data and store mask in ymm1
+    vpcmpeqb ymm1, ymm0, [rdi]
+    vpmovmskb r11d, ymm1
+
+    ; if all 1s -> set zf (if equal ==> zf = 1)
+    cmp r11d, 0xffffffff
     ; if not found --> next
     jne .LoopNext
     
     ; if equal, set *item_pos = node_pos
     mov r11d, esi
     
-    ; zero ymms zmms higher bits
+    ; zero ymms higher bits
     vzeroupper
-    ret
+    jmp HashTableFindElementAsm.Continue
 
 .NotFound:
     ; *item_pos = -1
     mov r11d, 0xffffffff
     
-    ; zero ymms and zmms higher bits
+    ; zero ymms higher bits
     vzeroupper
-    ret
+    jmp HashTableFindElementAsm.Continue
 
 ;==================================================================
 

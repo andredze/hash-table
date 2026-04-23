@@ -24,11 +24,11 @@ CXX = g++
 
 CXXFLAGS = -pie 	   \
 		   -fPIE 	   \
-		   -flto 	   \
 		   -masm=intel \
 		   -mavx2	   \
 		   -mavx	   \
-		   -mfma
+		   -mfma	   \
+		   -g
 
 # -g 							   		\
 # 		   -fno-omit-frame-pointer 		\
@@ -78,6 +78,12 @@ endif
 
 ifdef FULLASM
 	CXXFLAGS += -D FULLASM
+endif
+
+ifdef INLINE
+	CXXFLAGS += -flto
+else
+	CXXFLAGS += -fno-inline
 endif
 
 # ------------------------------------------------------------------ #

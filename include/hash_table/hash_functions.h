@@ -86,8 +86,8 @@ const uint32_t POLYNOM_8_LOOKUP_TABLE[256] = {
 
 //------------------------------------------------------------------//
 
-extern "C" 
-uint32_t CountHashCrc32Asm      (char*       string);
+extern "C"
+uint32_t CountHashCrc32Asm      (char* const string);
 uint32_t CountHashAlwaysOne     (char* const string);
 uint32_t CountHashFirstLetter   (char* const string);
 uint32_t CountHashLength        (char* const string);

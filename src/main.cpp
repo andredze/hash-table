@@ -62,9 +62,9 @@ int main(int argc, char* argv[])
     }
 
     fclose(variance_data_file);
-#endif /* HIST */
 
-#ifdef TEST
+#else
+
     do
     {
         DPRINTF("Ctoring\n");
@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
     if (error)
         return EXIT_FAILURE;
 
-#endif /* TEST */
+#endif /* HIST */
 
     return EXIT_SUCCESS;
 }
