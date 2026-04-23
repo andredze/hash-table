@@ -120,12 +120,12 @@ uint32_t CountHashCrc32AsmInline(char* string)
 {
     assert(string);
 
-    uint32_t crc = 0xFFFFFFFF;
+    uint64_t crc = 0xFFFFFFFF;
 
-    asm ("crc32 %[crc], DWORD PTR [%[string] + 0 ]\n" 
-         "crc32 %[crc], DWORD PTR [%[string] + 8 ]\n" 
-         "crc32 %[crc], DWORD PTR [%[string] + 16]\n" 
-         "crc32 %[crc], DWORD PTR [%[string] + 24]\n" 
+    asm ("crc32 %[crc], QWORD PTR [%[string] + 0 ]\n" 
+         "crc32 %[crc], QWORD PTR [%[string] + 8 ]\n" 
+         "crc32 %[crc], QWORD PTR [%[string] + 16]\n" 
+         "crc32 %[crc], QWORD PTR [%[string] + 24]\n" 
          : [crc]    "+r" (crc) 
          : [string] "r"  (string)
          : "memory");

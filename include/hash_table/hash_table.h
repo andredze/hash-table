@@ -77,17 +77,21 @@ HashFunctionHistCase_t;
 
 //------------------------------------------------------------------//
 
+#define SET_HT_HIST_CASE(name, hist_title) {CountHash ## name, #name, hist_title}
+
 const HashFunctionHistCase_t HT_HASH_FUNC_HIST_CASES_TABLE[] = {
-    {CountHashAlwaysOne     , "always_one"  , "\\\"value is always one\\\""    },
-    {CountHashFirstLetter   , "first_letter", "\\\"first letter ASCII code\\\""},
-    {CountHashLength        , "strlen"      , "strlen"                         },
-    {CountHashChecksum      , "checksum"    , "checksum"                       },
-    {CountHashRotateLeft    , "rol"         , "\\\"rotate left + xor\\\""      },
-    {CountHashRotateRight   , "ror"         , "\\\"rotate right + xor\\\""     },
-    {CountHashDjb2          , "djb2"        , "gnu (djb2)"                     },
-    {CountHashCrc32         , "crc32"       , "crc32"                          },
-    {CountHashCrc32AsmInline, "crc32_asm"   , "crc32 asm"                      }
+    SET_HT_HIST_CASE(AlwaysOne     , "\\\"value is always one\\\""    ),
+    SET_HT_HIST_CASE(FirstLetter   , "\\\"first letter ASCII code\\\""),
+    SET_HT_HIST_CASE(Length        , "strlen"                         ),
+    SET_HT_HIST_CASE(Checksum      , "checksum"                       ),
+    SET_HT_HIST_CASE(RotateLeft    , "\\\"rotate left + xor\\\""      ),
+    SET_HT_HIST_CASE(RotateRight   , "\\\"rotate right + xor\\\""     ),
+    SET_HT_HIST_CASE(Djb2          , "gnu (djb2)"                     ),
+    SET_HT_HIST_CASE(Crc32         , "crc32"                          ),
+    SET_HT_HIST_CASE(Crc32AsmInline, "crc32 asm"                      )
 };
+
+#undef SET_HT_HIST_CASE
 
 //------------------------------------------------------------------//
 

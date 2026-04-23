@@ -4,7 +4,7 @@ global HashTableFindElementAsm
 
 section .text
 
-extern CountHashCrc32Asm
+extern CountHashCrc32
 
 ;==================================================================
 ;------------------------------------------------------------------
@@ -20,7 +20,6 @@ extern CountHashCrc32Asm
 ;          rdx --> hash_table_pos (dest)
 ;          rcx --> list_pos       (dest)
 ; Out:     rax = error status
-; Destroy: -
 ;------------------------------------------------------------------
 ; C-equivalent
 ;------------------------------------------------------------------
@@ -101,8 +100,17 @@ HashTableFindElementAsm:
     ; rdi --> item
     mov rdi, rsi
 
-    jmp CountHashCrc32AsmLabel
-.EvaluatedHash:
+    push r8
+    push r9
+    push rsi
+    push rcx
+
+    call CountHashCrc32 wrt ..plt
+
+    pop rcx
+    pop rsi
+    pop r9
+    pop r8
 
     ; rax = hash value
     ; set rdx to 0 for div
@@ -155,23 +163,6 @@ HashTableFindElementAsm:
     jmp .PutTableAndListPos
 
 ;==================================================================
-
-CountHashCrc32AsmLabel:
-    ; eax = current hash value
-    ; initial is all 1s equivalent to -1
-    mov eax, 0xffffffff
-    
-    ; accumulate a crc value with current chunk of data (8 bytes of the string)
-    crc32 rax, qword [rdi+ 0]
-    crc32 rax, qword [rdi+ 8]
-    crc32 rax, qword [rdi+16]
-    crc32 rax, qword [rdi+24]
-
-    ; crc ^ 0xFF..FF (32 ones)
-    not eax
-
-    jmp HashTableFindElementAsm.EvaluatedHash
-
 ;------------------------------------------------------------------
 ; ListErr_t ListFindElementAsm(List_t* list, elem_t item, int* item_pos)
 ;------------------------------------------------------------------

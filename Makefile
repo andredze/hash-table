@@ -72,10 +72,6 @@ ifdef NOAVX
 	CXXFLAGS += -D NOAVX
 endif
 
-ifdef NOCRC32
-	CXXFLAGS += -D NOCRC32ASM
-endif
-
 ifdef FULLASM
 	CXXFLAGS += -D FULLASM
 endif
@@ -90,8 +86,14 @@ endif
 
 OBJS = $(SOURCES:src/%.cpp=obj/%.o)
 
-ASM_OBJS = obj/hash_table/crc32.o \
-		   obj/hash_table/hash_table_find.o
+ASM_OBJS = obj/hash_table/crc32.o
+
+ifdef NOCRC32
+	CXXFLAGS += -D NOCRC32ASM
+	ASM_OBJS += obj/hash_table/hash_table_find_nocrc32.o
+else
+	ASM_OBJS += obj/hash_table/hash_table_find.o
+endif
 
 TARGET = run
 

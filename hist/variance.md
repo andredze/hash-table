@@ -1,14 +1,11 @@
 | hash func            |        variance |   std deviation |
 |-------|------|------|
-| always_one           |       296073.19 |          544.13 |
-| first_letter         |        10160.34 |          100.80 |
-| strlen               |        31626.89 |          177.84 |
-| checksum             |          300.59 |           17.34 |
-| rol                  |            4.05 |            2.01 |
-| ror                  |            4.80 |            2.19 |
-| djb2                 |            3.84 |            1.96 |
-| crc32                |            3.94 |            1.98 |
-| crc32_intrin         |            3.99 |            2.00 |
-| crc32_asm            |            3.99 |            2.00 |
-// на график добавить дисперсию
-// flame graph
+| AlwaysOne            |        46025.37 |          214.54 |
+| FirstLetter          |         1153.89 |           33.97 |
+| Length               |        18134.16 |          134.66 |
+| Checksum             |          329.26 |           18.15 |
+| RotateLeft           |            5.92 |            2.43 |
+| RotateRight          |            6.87 |            2.62 |
+| Djb2                 |            5.64 |            2.37 |
+| Crc32                |            5.79 |            2.41 |
+| Crc32AsmInline       |            5.73 |            2.39 |
