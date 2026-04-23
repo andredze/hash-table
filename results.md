@@ -44,8 +44,8 @@
 
 <table>
 <tr>
-<td><img src="assets/rol_ror_cpp.png" width = 50%></td>
-<td><img src="assets/rol_ror_godbolt.png" width = 75%></td>
+<td><p align="center"><img src="assets/rol_ror_cpp.png" width = 50%></p></td>
+<td><p align="center"><img src="assets/rol_ror_godbolt.png" width = 75%></p></td>
 </tr>
 </table>
 
