@@ -1,6 +1,8 @@
 obj/*.o
 log/
+
 run
+./run
 *.o
 *.data
 *.data.old

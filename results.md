@@ -108,6 +108,9 @@ int ListElemsEqual(__m256i mm_elem1, elem_t elem2)
     return ~_mm256_cvtsi256_si32(mask) == 0;
 }
 ```
+<p align="center">
+    <img src="assets/callgrind_avx_ListElemsEqual.png" width="75%">
+</p>
 
 ### *Ускорение на 33%*
 
@@ -117,6 +120,9 @@ int ListElemsEqual(__m256i mm_elem1, elem_t elem2)
 
 <p align="center">
     <img src="assets/callgrind_avx.png" width="75%">
+</p>
+<p align="center">
+    <img src="assets/callgrind_crc_callgraph.png" width="75%">
 </p>
 
 ```cpp
@@ -139,6 +145,9 @@ uint32_t CountHashCrc32AsmInline(char* string)
     return crc ^ 0xFFFFFFFF;
 }
 ```
+<p align="center">
+    <img src="assets/callgrind_crc32.png" width="75%">
+</p>
 
 ### *Ускорение на 35%*
 
@@ -146,7 +155,18 @@ uint32_t CountHashCrc32AsmInline(char* string)
 
 ## Реализация функции поиска элемента в хэш-таблице на ассемблере
 
+<p align="center">
+    <img src="assets/callgrind_avx_crc32.png" width="75%">
+</p>
+<p align="center">
+    <img src="assets/callgrind_hash_find_push.png" width="75%">
+</p>
 
+[HashTableFindElement и ListFindElement на ассемблере](src/hash_table/hash_table_find.s)
+
+<p align="center">
+    <img src="assets/callgrind_hash_find_asm.png" width="75%">
+</p>
 
 ### *Ускорение на 15%?*
 <!-- ? (на самом деле нет)* -->
@@ -161,6 +181,16 @@ uint32_t CountHashCrc32AsmInline(char* string)
 | + HashTableFind на ассемблере      | 4.72 ± 0.03 | 1.15 | 2.05 |
 
 ### Включим inlining между файлами с помощью флага -flto
+
+<p align="center">
+    <img src="assets/callgrind_inline.png" width="75%">
+</p>
+
+#### Полностью отсутствуют инструкции `push` и `call`
+
+<p align="center">
+    <img src="assets/callgrind_flto.png" width="75%">
+</p>
 
 |Версия|Время, с|Ускорение относительно предыдущей версии | Ускорение относительно точки отсчета |
 |:---|---:|---:|---:|

@@ -90,7 +90,7 @@ ASM_OBJS = obj/hash_table/crc32.o
 
 ifdef NOCRC32
 	CXXFLAGS += -D NOCRC32ASM
-	ASM_OBJS += obj/hash_table/hash_table_find_nocrc32.o
+# 	ASM_OBJS += obj/hash_table/hash_table_find_nocrc32.o
 else
 	ASM_OBJS += obj/hash_table/hash_table_find.o
 endif
