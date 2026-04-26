@@ -42,16 +42,32 @@
     <img src="hist/RotateRight.png" width="75%">
 </p>
 
-<table>
-<tr>
-<td><p align="center"><img src="assets/rol_ror_cpp.png" width = 50%></p></td>
-<td><p align="center"><img src="assets/rol_ror_godbolt.png" width = 75%></p></td>
-</tr>
-</table>
-
 ### Хэш crc32
 <p align="center">
     <img src="hist/Crc32.png" width="75%">
+</p>
+
+```cpp
+uint32_t CountHashRotateLeft(char* const string)
+{
+    assert(string);
+
+    uint32_t hash = *string;
+    
+    for (size_t i = 0; (string[i + 1] != '\0') && (i < MAX_ITERATIONS); i++)
+    {
+        // rol hash, 3
+        hash = (hash << ROTATE_BYTES) | (hash >> (sizeof(uint32_t) * 8 - ROTATE_BYTES)); 
+
+        hash = hash ^ string[i + 1];
+    }
+
+    return hash;
+}
+```
+
+<p align="center">
+    <img src="assets/rol_ror_godbolt.png" width = 75%>
 </p>
 
 ## Таблица дисперсий
@@ -93,15 +109,7 @@ int ListElemsEqual(__m256i mm_elem1, elem_t elem2)
 }
 ```
 
-### Ускорение на 33%
-
----
-
-## Реализация функции поиска элемента в хэш-таблице на ассемблере
-
-
-
-### Ускорение на % (?)
+### *Ускорение на 33%*
 
 ---
 
@@ -132,7 +140,16 @@ uint32_t CountHashCrc32AsmInline(char* string)
 }
 ```
 
-### Ускорение на %
+### *Ускорение на 35%*
+
+---
+
+## Реализация функции поиска элемента в хэш-таблице на ассемблере
+
+
+
+### *Ускорение на 15%?*
+<!-- ? (на самом деле нет)* -->
 
 ---
 
@@ -140,13 +157,8 @@ uint32_t CountHashCrc32AsmInline(char* string)
 |:---|---:|---:|---:|
 | Точка отсчета (без оптимизаций)    | 9.69 ± 0.04 | 1.00 | 1.00 |
 | + Сравнение строк с avx            | 7.27 ± 0.04 | 1.33 | 1.33 |
-| + HashTableFind на ассемблере      | 6.91 ± 0.04 | 1.05 | 2.05 |
-| + Ассемблерная вставка crc32       | 4.72 ± 0.03 | 1.46 | 1.79 |
-
-<!-- | Точка отсчета (без оптимизаций)    | 9.69 ± 0.04 | 1.00 | 1.00 | -->
-<!-- | + Сравнение строк с avx            | 7.27 ± 0.04 | 1.33 | 1.33 | -->
-<!-- | + Ассемблерная вставка crc32       | 5.40 ± 0.02 | 1.35 | 1.79 | -->
-<!-- | + HashTableFind на ассемблере      | 4.72 ± 0.03 | 1.15 | 2.05 | -->
+| + Ассемблерная вставка crc32       | 5.40 ± 0.02 | 1.35 | 1.79 |
+| + HashTableFind на ассемблере      | 4.72 ± 0.03 | 1.15 | 2.05 |
 
 ### Включим inlining между файлами с помощью флага -flto
 
@@ -157,3 +169,5 @@ uint32_t CountHashCrc32AsmInline(char* string)
 | + Сравнение строк с avx                   | 6.46 ± 0.02 | 1.40 | 1.40 |
 | + Ассемблерная вставка crc32              | 4.48 ± 0.01 | 1.44 | 2.01 |
 | + Флаг -O3                                | 4.44 ± 0.02 | 1.01 | 2.03 |
+
+#### Скомпилированный с ключом -flto код работает быстрее, чем написанный мной на ассемблере

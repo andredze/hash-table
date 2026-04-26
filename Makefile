@@ -28,11 +28,11 @@ CXXFLAGS = -pie 	   \
 		   -mavx2	   \
 		   -mavx	   \
 		   -mfma	   \
-		   -g
+		   -g		   \
+		   -fno-omit-frame-pointer 		\
+		   -fno-optimize-sibling-calls
 
-# -g 							   		\
-# 		   -fno-omit-frame-pointer 		\
-# 		   -fno-optimize-sibling-calls
+# -g
 
 OPT=-O2
 
