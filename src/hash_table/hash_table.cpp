@@ -263,18 +263,6 @@ void HashTableDtor(HashTable_t *hash_table)
     hash_table->data = NULL;
 
     hash_table->capacity = 0;
-
-#if defined(NOAVX)
-
-    free(hash_table->words);
-
-#else
-
-    _mm_free(hash_table->words);
-
-#endif /* NOAVX */
-
-    hash_table->words = NULL;
 }
 
 //------------------------------------------------------------------//
@@ -357,11 +345,12 @@ HashTableErr_t HashTableDrawHistogram(HashTable_t* hash_table,
 
 //------------------------------------------------------------------//
 
-HashTableErr_t HashTableLoadData(HashTable_t* hash_table, const char* data_file_path)
+HashTableErr_t HashTableLoadData(HashTable_t* hash_table, const char* data_file_path, 
+                                 Word_t** words_ptr)
 {
     assert(hash_table);
 
-    if (hash_table->words != NULL)
+    if (*words_ptr != NULL)
     {
         PRINTERR("Can only load data once in a hash table");
         
@@ -385,23 +374,25 @@ HashTableErr_t HashTableLoadData(HashTable_t* hash_table, const char* data_file_
 
     size_t words_data_size = data_ctx.ptrdata_params.lines_count * sizeof(Word_t);
 
+    Word_t* words = NULL;
+
 #if defined(NOAVX)
 
-    hash_table->words = (Word_t*) calloc(data_ctx.ptrdata_params.lines_count, sizeof(Word_t));
+    words = (Word_t*) calloc(data_ctx.ptrdata_params.lines_count, sizeof(Word_t));
 
 #else
 
-    hash_table->words = (Word_t*) _mm_malloc(words_data_size, sizeof(Word_t));
+    words = (Word_t*) _mm_malloc(words_data_size, sizeof(Word_t));
 
     // initialize words with zeros
     for (size_t i = 0; i < data_ctx.ptrdata_params.lines_count; i++)
     {
-        strncpy(hash_table->words[i], ZERO_DATA, sizeof(hash_table->words[i]));
+        strncpy(words[i], ZERO_DATA, sizeof(words[i]));
     }
 
 #endif /* NOAVX */
 
-    if (hash_table->words == NULL)
+    if (words == NULL)
     {
         PRINTERR("Failed memory allocation for hash_table->words");
         return HT_MEMALLOC_ERR;
@@ -411,10 +402,10 @@ HashTableErr_t HashTableLoadData(HashTable_t* hash_table, const char* data_file_
 
     for (int i = 0; i < data_ctx.ptrdata_params.lines_count; i++)
     {
-        strncpy(hash_table->words[i], data_ctx.ptrdata_params.ptrdata[i], 
-                sizeof(hash_table->words[i]));
+        strncpy(words[i], data_ctx.ptrdata_params.ptrdata[i], 
+                sizeof(words[i]));
      
-        if ((error = HashTablePutElement(hash_table, hash_table->words[i])))
+        if ((error = HashTablePutElement(hash_table, words[i])))
         {
             InputCtxDtor(&data_ctx);
 
@@ -423,6 +414,8 @@ HashTableErr_t HashTableLoadData(HashTable_t* hash_table, const char* data_file_
 
         DPRINTF("Putting %s; size = %zu\n", data_ctx.ptrdata_params.ptrdata[i], hash_table->size);
     }
+
+    *words_ptr = words;
 
     InputCtxDtor(&data_ctx);    
 

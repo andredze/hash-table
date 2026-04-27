@@ -42,8 +42,6 @@ typedef struct HashTable
     List_t*     data;
 
     uint32_t (* hash_function)(const HashTableElem_t elem);
-
-    Word_t*     words;
 }
 HashTable_t;
 
@@ -119,7 +117,9 @@ HashTableErr_t HashTablePutElement      (HashTable_t* hash_table, HashTableElem_
 HashTableErr_t HashTableVerify          (HashTable_t* hash_table);
 HashTableErr_t HashTableDump            (HashTable_t* hash_table);
 void           HashTableDtor            (HashTable_t* hash_table);
-HashTableErr_t HashTableLoadData        (HashTable_t* hash_table, const char* data_file_path);
+
+HashTableErr_t HashTableLoadData(HashTable_t* hash_table, const char* data_file_path, 
+                                 Word_t**     words_ptr);
 
 HashTableErr_t HashTableDrawHistogram(HashTable_t* hash_table, 
                                       const char*  hist_name,

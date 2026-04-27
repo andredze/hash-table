@@ -15,7 +15,7 @@ const int TESTS_COUNT = 2000;
 
 //------------------------------------------------------------------//
 
-HashTableErr_t HashTableRunTestCase(HashTable_t* hash_table);
+HashTableErr_t HashTableRunTestCase(HashTable_t* hash_table, Word_t* words);
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 

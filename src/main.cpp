@@ -10,6 +10,8 @@ int main(int argc, char* argv[])
     HashTable_t    hash_table = {};
     HashTableErr_t error      = HT_SUCCESS;
 
+    Word_t* words = NULL;
+
 #ifdef HIST
     FILE* variance_data_file = fopen(VARIANCE_DATA_FILE_PATH, "w"); 
 
@@ -34,7 +36,7 @@ int main(int argc, char* argv[])
 
             fprintf(stderr, "Loading data\n");
 
-            if ((error = HashTableLoadData(&hash_table, HIST_DATA_FILE_PATH)))
+            if ((error = HashTableLoadData(&hash_table, HIST_DATA_FILE_PATH, &words)))
                 break;
 
             fprintf(stderr, "Drawing histogram %s\n", hash_func_name);
@@ -74,12 +76,12 @@ int main(int argc, char* argv[])
 
         DPRINTF("Loading data\n");
 
-        if ((error = HashTableLoadData(&hash_table, TEST_DATA_FILE_PATH)))
+        if ((error = HashTableLoadData(&hash_table, TEST_DATA_FILE_PATH, &words)))
             break;
 
         DPRINTF("Running test case\n");
 
-        if ((error = HashTableRunTestCase(&hash_table)))
+        if ((error = HashTableRunTestCase(&hash_table, words)))
             break;
     }
     while (0);
@@ -90,6 +92,16 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
 
 #endif /* HIST */
+
+#if defined(NOAVX)
+
+    free(words);
+
+#else
+
+    _mm_free(words);
+
+#endif /* NOAVX */
 
     return EXIT_SUCCESS;
 }
