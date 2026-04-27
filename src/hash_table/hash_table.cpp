@@ -68,17 +68,7 @@ static HashTableErr_t HashTableGetElemList(HashTable_t*     hash_table,
                                            HashTableElem_t  item, 
                                            List_t**         list_ptr_ptr)
 {
-
-#if defined(NOCRC32ASM)
-    size_t hash_value = CountHashCrc32(item);
-#elif defined(HIST)
-    size_t hash_value = hash_table->hash_function(item);
-#elif defined(FULLASM)
-    size_t hash_value = CountHashCrc32Asm(item);
-#else
-    size_t hash_value = CountHashCrc32AsmInline(item);
-#endif /* NOCRC32ASM */
-
+    size_t hash_value = HASH_TABLE_COUNT_HASH_FUNC(item);
     size_t elem_index = hash_value % hash_table->capacity;
 
     HashTableDebugPrintElem(elem_index, item);
@@ -200,14 +190,7 @@ HashTableErr_t HashTableFindElement(HashTable_t*    hash_table,
         return HT_SUCCESS;
     }
 
-#if defined(NOCRC32ASM)
-    size_t hash_value = CountHashCrc32(item);
-#elif defined(HIST)
-    size_t hash_value = hash_table->hash_function(item);
-#else
-    size_t hash_value = CountHashCrc32AsmInline(item);
-#endif /* NOCRC32ASM */
-
+    size_t hash_value = HASH_TABLE_COUNT_HASH_FUNC(item);
     size_t elem_index = hash_value % hash_table->capacity;
 
     HashTableDebugPrintElem(elem_index, item);

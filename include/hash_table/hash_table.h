@@ -47,6 +47,18 @@ HashTable_t;
 
 //------------------------------------------------------------------//
 
+#if defined(NOCRC32ASM)
+    #define HASH_TABLE_COUNT_HASH_FUNC CountHashCrc32
+#elif defined(HIST)
+    #define HASH_TABLE_COUNT_HASH_FUNC hash_table->hash_function
+#elif defined(FULLASM)
+    #define HASH_TABLE_COUNT_HASH_FUNC CountHashCrc32Asm
+#else
+    #define HASH_TABLE_COUNT_HASH_FUNC CountHashCrc32AsmInline
+#endif /* NOCRC32ASM */
+
+//------------------------------------------------------------------//
+
 typedef enum HashTableErr
 {
     HT_SUCCESS,
