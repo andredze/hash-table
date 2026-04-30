@@ -507,7 +507,7 @@ ListErr_t ListDtor(List_t* list)
 
 //------------------------------------------------------------------//
 
-static int ListElemsEqual(elem_t elem1, elem_t elem2)
+static inline int ListElemsEqual(elem_t elem1, elem_t elem2)
 {
     assert(elem1);
     assert(elem2);
@@ -521,7 +521,7 @@ static int ListElemsEqual(elem_t elem1, elem_t elem2)
 
 //------------------------------------------------------------------//
 
-static int ListElemsEqual(__m256i mm_elem1, elem_t elem2)
+static inline int ListElemsEqual(__m256i mm_elem1, elem_t elem2)
 {
     assert(elem2);
 

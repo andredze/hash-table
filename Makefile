@@ -78,8 +78,8 @@ endif
 
 ifdef INLINE
 	CXXFLAGS += -flto
-else
-	CXXFLAGS += -fno-inline
+# else
+# 	CXXFLAGS += -fno-inline
 endif
 
 # ------------------------------------------------------------------ #
