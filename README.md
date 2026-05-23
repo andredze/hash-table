@@ -1,48 +1,48 @@
 # Сравнение хэш-функций
 ## Гистограммы заселенности
-<!-- ### Размер хэш-таблицы 5013 -->
-<!-- ### Всегда возвращает 1 -->
+### Размер хэш-таблицы 5013
+### Всегда возвращает 1
 <p align="center">
     <img src="hist/AlwaysOne_200.png" width="75%">
 </p>
 
-<!-- ### Возвращает первую букву слова -->
+### Возвращает первую букву слова
 <p align="center">
     <img src="hist/FirstLetter_200.png" width="75%">
 </p>
 
-<!-- ### Возвращает длину слова -->
+### Возвращает длину слова
 <p align="center">
     <img src="hist/Length_200.png" width="75%">
 </p>
 
-<!-- ### "Коварная" контрольная сумма -->
-<!-- #### Если размер хэш-таблицы 503 -->
+### "Коварная" контрольная сумма
+#### Если размер хэш-таблицы 503
 <p align="center">
     <img src="hist/Checksum_500.png" width="75%">
 </p>
 
-<!-- #### Если 5013 -->
+#### Если 5013
 <p align="center">
     <img src="hist/Checksum.png" width="75%">
 </p>
 
-<!-- ### Хэш djb2 -->
+### Хэш djb2
 <p align="center">
     <img src="hist/Djb2.png" width="75%">
 </p>
 
-<!-- ### Хэш "rol" -->
+### Хэш "rol"
 <p align="center">
     <img src="hist/RotateLeft.png" width="75%">
 </p>
 
-<!-- ### Хэш "ror" -->
+### Хэш "ror"
 <p align="center">
     <img src="hist/RotateRight.png" width="75%">
 </p>
 
-<!-- ### Хэш crc32 -->
+### Хэш crc32
 <p align="center">
     <img src="hist/Crc32.png" width="75%">
 </p>
@@ -70,7 +70,7 @@ uint32_t CountHashRotateLeft(char* const string)
     <img src="assets/rol_ror_godbolt.png" width = 75%>
 </p>
 
-<!-- ## Таблица дисперсий -->
+## Таблица дисперсий
 | Хэш-функция            |        Дисперсия | Стандартное отклонение |
 |-------|------|------|
 | always one           |        46025.37 |          214.54 |
@@ -82,9 +82,11 @@ uint32_t CountHashRotateLeft(char* const string)
 | djb2                 |            5.64 |            2.37 |
 | crc32                |            5.73 |            2.39 |
 
+Самыми лучшими хэш-функциями оказались djb2 и crc32. Оставим crc32 для дальнейшего анализа
+
 # Оптимизации
 
-<!-- ## Сравнение слов с помощью AVX инструкции -->
+## Сравнение слов с помощью AVX инструкции
 
 <p align="center">
     <img src="assets/callgrind_baseline.png" width="75%">
@@ -116,7 +118,7 @@ int ListElemsEqual(__m256i mm_elem1, elem_t elem2)
 
 ---
 
-<!-- ## Реализация хэш-функции crc32 с помощью ассемблерной вставки -->
+## Реализация хэш-функции crc32 с помощью ассемблерной вставки
 
 <p align="center">
     <img src="assets/callgrind_avx.png" width="75%">
@@ -153,7 +155,7 @@ uint32_t CountHashCrc32AsmInline(char* string)
 
 ---
 
-<!-- ## Реализация функции поиска элемента в хэш-таблице на ассемблере -->
+## Реализация функции поиска элемента в хэш-таблице на ассемблере
 
 <p align="center">
     <img src="assets/callgrind_avx_crc32.png" width="75%">
@@ -168,8 +170,7 @@ uint32_t CountHashCrc32AsmInline(char* string)
     <img src="assets/callgrind_hash_find_asm.png" width="75%">
 </p>
 
-### *Ускорение на 15%?*
-<!-- ? (на самом деле нет)* -->
+### *Ускорение на 15% (или нет?)*
 
 ---
 
@@ -182,8 +183,8 @@ uint32_t CountHashCrc32AsmInline(char* string)
 
 ---
 
-<!-- ## Последнюю оптимизацию можно избежать: -->
-<!-- ### Включим inlining между файлами с помощью флага -flto -->
+## На самом деле, последнюю оптимизацию можно избежать:
+### Включим inlining между файлами с помощью флага -flto
 
 <p align="center">
     <img src="assets/callgrind_inline.png" width="75%">
