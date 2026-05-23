@@ -47,7 +47,7 @@
     <img src="hist/Crc32.png" width="75%">
 </p>
 
-<!-- ```cpp
+```cpp
 uint32_t CountHashRotateLeft(char* const string)
 {
     assert(string);
@@ -64,7 +64,9 @@ uint32_t CountHashRotateLeft(char* const string)
 
     return hash;
 }
-``` -->
+```
+
+Заметим, что при компиляции с флагами оптимизации -O2 и -O3 компилятор начинает использовать саму инструкцию rol вместо битовых операций из исходного кода.
 
 <p align="center">
     <img src="assets/rol_ror_godbolt.png" width = 75%>
