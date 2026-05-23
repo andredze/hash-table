@@ -1,4 +1,5 @@
-# Сравнение хэш-функций
+# Оптимизация хэш-таблицы
+## Сравнение хэш-функций
 ## Гистограммы заселенности
 ### Размер хэш-таблицы 5013
 ### Всегда возвращает 1
@@ -88,6 +89,8 @@ uint32_t CountHashRotateLeft(char* const string)
 
 # Оптимизации
 
+Для оптимизации хэш-таблицы использовался профилировщик callgrind. Отсортировав по полю Self, можно определить самую затратную функцию, нуждающуюся в оптимизации.
+
 ## Сравнение слов с помощью AVX инструкции
 
 <p align="center">
@@ -166,7 +169,7 @@ uint32_t CountHashCrc32AsmInline(char* string)
     <img src="assets/callgrind_hash_find_push.png" width="75%">
 </p>
 
-[HashTableFindElement и ListFindElement на ассемблере](src/hash_table/hash_table_find.s)
+Переписав [HashTableFindElement и ListFindElement на ассемблере](src/hash_table/hash_table_find.s), я смог уменьшить количество обращений к памяти: избавился от лишних push/pop (так как мне не нужно поддерживать соглашение System V ABI, а именно то, какие из регистров могут портиться callee функцией), а также заменил call на jump.
 
 <p align="center">
     <img src="assets/callgrind_hash_find_asm.png" width="75%">
@@ -194,6 +197,8 @@ uint32_t CountHashCrc32AsmInline(char* string)
 
 #### Полностью отсутствуют инструкции `push` и `call`
 
+Inline-инг позволил компилятору совершить дополнительные оптимизации, полностью избежав ненужных обращений к памяти.
+
 <p align="center">
     <img src="assets/callgrind_flto.png" width="75%">
 </p>
@@ -206,4 +211,4 @@ uint32_t CountHashCrc32AsmInline(char* string)
 | + Ассемблерная вставка crc32              | 4.48 ± 0.01 | 1.44 | 2.01 |
 | + Флаг -O3                                | 4.44 ± 0.02 | 1.01 | 2.03 |
 
-#### Скомпилированный с ключом -flto код работает быстрее, чем написанный мной на ассемблере
+#### Таким образом, скомпилированный с ключом -flto код работает быстрее, чем написанный мной на ассемблере
